@@ -1,4 +1,4 @@
-# Deploy Kit MCP
+# Uplink - a deploy kit MCP
 
 An open source Model Context Protocol (MCP) server for uploading files to the cloud. It is meant to be used in AI-enabled editors like Cursor, or custom clients.
 
