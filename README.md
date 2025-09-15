@@ -32,6 +32,22 @@ To bootstrap the host application:
 
 To run the application: `bun run host.ts`
 
+Example of a successful prompt when running `gpt-oss` model.
+
+```text
+User:
+Upload 3 facts about life
+
+Assistant:
+Allowed directories: /absolute/path/uplink/assets
+
+Assistant:
+Successfully wrote to /absolute/path/uplink/assets/sun_facts.txt
+
+Assistant:
+The file **sun_facts.txt** containing three facts about the Sun has been uploaded to the cloud.
+```
+
 ### Example mcp-config.json
 
 ```json
@@ -72,6 +88,7 @@ To run the application: `bun run host.ts`
 
 - [ ] Add support for external LLMs by using Open AI SDK
 - [ ] Add additional custom servers for other cloud providers
+- [ ] Add mime type when uploading text files to cloud
 
 ## License
 
