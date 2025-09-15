@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "bunx",
+      "args": ["mcp-server-filesystem", "assets"]
+    },
+    "uplink": {
+      "command": "bun",
+      "args": ["run", "servers/cdn/uplink-server.ts"]
+    }
+  },
+  "ollama": {
+    "host": "http://localhost:11434",
+    "model": "gpt-oss:20b"
+  },
+  "openai": {
+    "host": "https://todo.dev",
+    "model": "gpt-4.1"
+  }
+}
