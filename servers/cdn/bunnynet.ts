@@ -1,4 +1,5 @@
 import * as BunnyStorageSDK from "@bunny.net/storage-sdk";
+import { env } from "../../env";
 
 // Singleton storage zone instance
 let storageZoneInstance: BunnyStorageSDK.zone.StorageZone | null = null;
@@ -6,15 +7,9 @@ let pullZoneUrl: URL | null = null;
 
 function getStorageZone(): BunnyStorageSDK.zone.StorageZone {
   if (!storageZoneInstance) {
-    const storageZoneName = process.env.BUNNY_STORAGE_ZONE_NAME!;
-    const accessKey = process.env.BUNNY_STORAGE_ACCCES_KEY!;
-    const pullZone = process.env.BUNNY_PULLZONE_URL!;
-
-    if (!storageZoneName || !accessKey || !pullZone) {
-      throw new Error(
-        "Missing BUNNY_STORAGE_ZONE_NAME or BUNNY_STORAGE_ACCCES_KEY environment variables"
-      );
-    }
+    const storageZoneName = env.BUNNY_STORAGE_ZONE_NAME!;
+    const accessKey = env.BUNNY_STORAGE_ACCESS_KEY!;
+    const pullZone = env.BUNNY_PULLZONE_URL!;
 
     pullZoneUrl = new URL(pullZone);
 

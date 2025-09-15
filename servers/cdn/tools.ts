@@ -15,7 +15,7 @@ async function readFile(
 
 export function registerListFilesTool(server: McpServer, api: BunnyNetApi) {
   server.registerTool(
-    "list_files",
+    "uplink_list_files",
     {
       title: "List Files",
       description: listFilesInstruction,
@@ -49,7 +49,7 @@ export function registerListFilesTool(server: McpServer, api: BunnyNetApi) {
 
 export function registerUploadFileTool(server: McpServer, api: BunnyNetApi) {
   server.registerTool(
-    "upload_file",
+    "uplink_upload_file",
     {
       title: "Upload File",
       description: uploadFileInstruction,
@@ -70,7 +70,9 @@ export function registerUploadFileTool(server: McpServer, api: BunnyNetApi) {
         content: [
           {
             type: "text",
-            text: isUploaded ? "File uploaded" : "File not uploaded",
+            text: isUploaded
+              ? `File ${remoteFile}`
+              : `File ${remoteFile} not uploaded`,
           },
         ],
       };
@@ -80,7 +82,7 @@ export function registerUploadFileTool(server: McpServer, api: BunnyNetApi) {
 
 export function registerDownloadFileTool(server: McpServer, api: BunnyNetApi) {
   server.registerTool(
-    "download_file",
+    "uplink_download_file",
     {
       title: "Download File",
       description: downloadFileInstruction,
@@ -127,7 +129,7 @@ export function registerDownloadFileTool(server: McpServer, api: BunnyNetApi) {
 
 export function registerDeleteFileTool(server: McpServer, api: BunnyNetApi) {
   server.registerTool(
-    "delete_file",
+    "uplink_delete_file",
     {
       title: "Delete File",
       description: deleteFileInstruction,
