@@ -1,5 +1,6 @@
 # dependencies (bun install)
 node_modules
+.DS_Store
 
 # output
 out
@@ -71,3 +72,8 @@ env/
 ENV/
 .env/
 .venv/
+.cursor/
+
+logging/*.log
+assets/
+downloads/

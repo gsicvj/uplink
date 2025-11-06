@@ -86,9 +86,9 @@ The file **sun_facts.txt** containing three facts about the Sun has been uploade
 
 ## TODO / Roadmap
 
-- [ ] Add support for external LLMs by using Open AI SDK
-- [ ] Add additional custom servers for other cloud providers
-- [ ] Add mime type when uploading text files to cloud
+- [x] Add support for external LLMs by using Open AI SDK
+- [x] Add additional custom servers for other cloud providers
+- [x] Add mime type when uploading text files to cloud
 
 ## License
 
