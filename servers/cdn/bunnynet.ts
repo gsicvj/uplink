@@ -1,5 +1,6 @@
 import * as BunnyStorageSDK from "@bunny.net/storage-sdk";
 import { env } from "../../env";
+import { type FileObject } from "./tools";
 
 // Singleton storage zone instance
 let storageZoneInstance: BunnyStorageSDK.zone.StorageZone | null = null;
@@ -23,15 +24,9 @@ function getStorageZone(): BunnyStorageSDK.zone.StorageZone {
 }
 
 export interface IBunnyNetAPIInterface {
-  upload(
-    fileName: string,
-    stream: ReadableStream<Uint8Array>
-  ): Promise<boolean>;
+  upload(fileName: string, toUpload: FileObject): Promise<boolean>;
   download(fileName: string): Promise<Response>;
-  update(
-    fileName: string,
-    stream: ReadableStream<Uint8Array>
-  ): Promise<boolean>;
+  update(fileName: string, toUpload: FileObject): Promise<boolean>;
   delete(fileName: string): Promise<boolean>;
   list(remotePath: string): Promise<BunnyStorageSDK.file.StorageFile[]>;
 }
@@ -43,13 +38,17 @@ export class BunnyNetApi implements IBunnyNetAPIInterface {
     this.storageZone = getStorageZone();
   }
 
-  async upload(fileName: string, stream: ReadableStream<Uint8Array>) {
+  async upload(fileName: string, toUpload: FileObject) {
+    const options = toUpload.type
+      ? { contentType: toUpload.type.mime }
+      : undefined;
     // fileName should include the path to the file
     // all the file data is already in the stream
     const isUploaded = await BunnyStorageSDK.file.upload(
       this.storageZone,
       fileName,
-      stream
+      toUpload.stream,
+      options
     );
     return isUploaded;
   }
@@ -62,7 +61,7 @@ export class BunnyNetApi implements IBunnyNetAPIInterface {
     return await fetch(`${pullZoneUrl}${fileName}`);
   }
 
-  async update(fileName: string, stream: ReadableStream<Uint8Array>) {
+  async update(fileName: string, toUpload: FileObject) {
     /**
      * bunny.net does not support updating a file.
      * We need to remove the file and create a new one with the same name.
@@ -71,7 +70,7 @@ export class BunnyNetApi implements IBunnyNetAPIInterface {
     if (!isRemoved) {
       return false;
     }
-    const isCreated = await this.upload(fileName, stream);
+    const isCreated = await this.upload(fileName, toUpload);
     return isCreated;
   }
 
