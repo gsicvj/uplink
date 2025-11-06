@@ -41,7 +41,7 @@ export class Client {
   async callToolWithTimeout(
     toolName: string,
     toolArgs: Record<string, unknown>,
-    timeout: number = 5000
+    timeout: number = 10000
   ) {
     const toolFn = this.callTool(toolName, toolArgs);
     const timeoutFn = new Promise<undefined>((resolve) => {
