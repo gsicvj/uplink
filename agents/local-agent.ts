@@ -80,7 +80,7 @@ export class LocalAgent {
       }
 
       await response.json();
-      console.error(`Model ${this.config.localAgent.modelId} ready.`);
+      console.error(`Local model ${this.config.localAgent.modelId} ready.`);
     } catch (error) {
       throw new Error(
         `Failed to warm up model. Ensure Ollama is running at ${
@@ -119,17 +119,12 @@ export class LocalAgent {
         });
         break;
       }
-      const iterationStartTime = performance.now();
       // first process the prompt
       chatResponse = await this.model.createMessage({
         messages: this.messages,
         tools: this.tools,
       });
 
-      const iterationTotalTime = +(
-        (performance.now() - iterationStartTime) /
-        1000
-      ).toFixed(2);
       iterationsCount++;
 
       if (!chatResponse.message.content && chatResponse.message.thinking) {
@@ -227,7 +222,7 @@ export class LocalAgent {
     );
 
     console.error(
-      `Spent ${solveTotalTime}s thinking about ${iterationsCount} iterations. ${toolCallsCount} tools were called in ${toolCallsTotalTime}s.`
+      `${iterationsCount} steps were made in ${solveTotalTime}s . ${toolCallsCount} tools were called in ${toolCallsTotalTime}s.`
     );
     logLocalResponse({
       solve: {

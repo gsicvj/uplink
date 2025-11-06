@@ -46,6 +46,7 @@ export class RemoteAgent {
         totalDuration: connectTime,
       },
     });
+    console.error(`Remote model ${config.remoteAgent.modelId} ready.`);
   }
 
   async solve(prompt: string): Promise<SolveResult> {
@@ -82,8 +83,8 @@ export class RemoteAgent {
         ? "Max iterations reached"
         : null;
 
-    const totalTime = +(performance.now() - startTime).toFixed(2);
-    console.error(`Assistant needed ${totalTime}ms to complete.`);
+    const totalTime = +((performance.now() - startTime) / 1000).toFixed(2);
+    console.error(`Assistant needed ${totalTime}s to complete.`);
 
     return {
       content: response.text ?? null,
