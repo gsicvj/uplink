@@ -6,7 +6,15 @@ export class Client {
   private transport: StdioClientTransport;
   public tools: Tool[] | null = null;
 
-  constructor({ serverName, args }: { serverName: string; args: string[] }) {
+  constructor({
+    serverName,
+    command,
+    args,
+  }: {
+    serverName: string;
+    command: string;
+    args: string[];
+  }) {
     this.mcpClient = new MCPClient(
       {
         name: `ollama-client-${serverName}`,
@@ -22,9 +30,6 @@ export class Client {
               listChanged: true,
             },
           },
-          roots: {
-            listChanged: true,
-          },
           resources: {
             listChanged: true,
           },
@@ -33,15 +38,16 @@ export class Client {
     );
 
     this.transport = new StdioClientTransport({
-      command: process.execPath,
+      command,
       args,
+      stderr: "ignore",
     });
   }
 
   async callToolWithTimeout(
     toolName: string,
     toolArgs: Record<string, unknown>,
-    timeout: number = 5000
+    timeout: number = 10000
   ) {
     const toolFn = this.callTool(toolName, toolArgs);
     const timeoutFn = new Promise<undefined>((resolve) => {
@@ -58,7 +64,8 @@ export class Client {
       });
       return toolCallResponse;
     } catch (error) {
-      console.error(`Failed to call ${toolName}`);
+      // Return undefined - agent will handle logging with retry context
+      return undefined;
     }
   }
 

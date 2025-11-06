@@ -1,16 +1,45 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { fileTypeFromStream } from "file-type";
 import { z } from "zod";
 import { listFilesInstruction } from "./context/descriptions";
 import { uploadFileInstruction } from "./context/descriptions";
 import { downloadFileInstruction } from "./context/descriptions";
 import { deleteFileInstruction } from "./context/descriptions";
 import { BunnyNetApi } from "./bunnynet";
+import { getAllowedDirectories } from "./uplink-server";
 
-async function readFile(
-  localFile: string
-): Promise<ReadableStream<Uint8Array>> {
+export type FileObject = {
+  name: string;
+  type: Awaited<ReturnType<typeof fileTypeFromStream>>;
+  stream: ReadableStream<Uint8Array>;
+};
+
+function isPathAllowed(filePath: string, allowedDirs: string[]): boolean {
+  // Normalize the path (remove ./ prefix if present)
+  const normalizedPath = filePath.replace(/^\.\//, "");
+
+  // Check if the path starts with any of the allowed directories
+  return allowedDirs.some((dir) => {
+    const normalizedDir = dir.replace(/^\.\//, "");
+    return (
+      normalizedPath.startsWith(normalizedDir + "/") ||
+      normalizedPath === normalizedDir
+    );
+  });
+}
+
+async function readFile(localFile: string): Promise<FileObject> {
   const file = Bun.file(localFile);
-  return file.stream();
+  // Streams can't be reused.
+  // We need one stream for reading the file's mime type.
+  const mimeStream = file.stream();
+  const type = await fileTypeFromStream(mimeStream);
+  // And one stream for the actual read operation.
+  return {
+    name: localFile,
+    type: type,
+    stream: file.stream(),
+  };
 }
 
 export function registerListFilesTool(server: McpServer, api: BunnyNetApi) {
@@ -63,9 +92,24 @@ export function registerUploadFileTool(server: McpServer, api: BunnyNetApi) {
       },
     },
     async ({ localFile, remoteFile }) => {
-      const fileStream = await readFile(localFile);
+      // Validate local file path against filesystem allowed directories
+      const allowedDirs = getAllowedDirectories();
+      if (!isPathAllowed(remoteFile, allowedDirs)) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: Remote file path '${remoteFile}' is not within allowed directories: ${allowedDirs.join(
+                ", "
+              )}`,
+            },
+          ],
+        };
+      }
 
-      const isUploaded = await api.upload(remoteFile, fileStream);
+      const fileObject = await readFile(localFile);
+
+      const isUploaded = await api.upload(remoteFile, fileObject);
       return {
         content: [
           {
@@ -146,6 +190,30 @@ export function registerDeleteFileTool(server: McpServer, api: BunnyNetApi) {
           {
             type: "text",
             text: isDeleted ? "File deleted" : "File not deleted",
+          },
+        ],
+      };
+    }
+  );
+}
+
+export function registerAllowedDirectories(server: McpServer) {
+  server.registerTool(
+    "uplink_get_allowed_directories",
+    {
+      title: "Get Allowed Directories",
+      description:
+        "Returns the list of allowed directories for file operations",
+      inputSchema: {},
+    },
+    async () => {
+      const allowedDirs = getAllowedDirectories();
+      const directories = allowedDirs?.length > 0 ? allowedDirs : [];
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(directories, null, 2),
           },
         ],
       };

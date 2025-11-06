@@ -2,19 +2,27 @@
   "mcpServers": {
     "filesystem": {
       "command": "bunx",
-      "args": ["mcp-server-filesystem", "assets"]
+      "args": ["mcp-server-filesystem", "assets", "downloads"]
     },
     "uplink": {
       "command": "bun",
-      "args": ["run", "servers/cdn/uplink-server.ts"]
+      "args": [
+        "run",
+        "servers/cdn/uplink-server.ts",
+        "folder-baloons",
+        "folder-a"
+      ]
     }
   },
-  "ollama": {
+
+  "localAgent": {
     "host": "http://localhost:11434",
-    "model": "gpt-oss:20b"
+    "modelId": "gpt-oss:20b"
   },
-  "openai": {
-    "host": "https://todo.dev",
-    "model": "gpt-4.1"
-  }
+  "remoteAgent": {
+    "host": "https://console.groq.com",
+    "modelId": "openai/gpt-oss-20b"
+  },
+  "agentProvider": "remoteAgent",
+  "isChatEnabled": true
 }
