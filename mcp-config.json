@@ -2,10 +2,7 @@
   "mcpServers": {
     "filesystem": {
       "command": "bunx",
-      "args": [
-        "@modelcontextprotocol/server-filesystem",
-        "/Users/domen/Code/Self/experiments"
-      ]
+      "args": ["@modelcontextprotocol/server-filesystem", "assets", "downloads"]
     },
     "uplink": {
       "command": "bun",
