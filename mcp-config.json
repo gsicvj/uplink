@@ -2,7 +2,10 @@
   "mcpServers": {
     "filesystem": {
       "command": "bunx",
-      "args": ["mcp-server-filesystem", "assets", "downloads"]
+      "args": [
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/domen/Code/Self/experiments"
+      ]
     },
     "uplink": {
       "command": "bun",
@@ -23,6 +26,6 @@
     "host": "https://console.groq.com",
     "modelId": "openai/gpt-oss-20b"
   },
-  "agentProvider": "remoteAgent",
+  "agentProvider": "localAgent",
   "isChatEnabled": true
 }

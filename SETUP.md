@@ -27,11 +27,17 @@
 
 6. **Configure `mcp-config.json`** to choose your LLM provider:
 
-   - Set `"agentProvider": "remoteAgent"` to use cloud LLMs (OpenAI, Anthropic, etc.)
-   - Set `"agentProvider": "localAgent"` to use Ollama (requires step 7)
+   - Set `"agentProvider": "remoteAgent"` to use cloud LLMs (Groq by default; see step 7 for changing providers)
+   - Set `"agentProvider": "localAgent"` to use Ollama (requires step 8)
    - Keep `"isChatEnabled": true` to allow the agent to respond conversationally and explain its actions
 
-7. **(Optional) Install Ollama** to run local LLMs:
+7. **(Optional) Pick a different remote LLM provider** if you already have access to one:
+
+   - Browse the [AI SDK provider catalog](https://ai-sdk.dev/providers/ai-sdk-providers/openai) to find a compatible provider and note the install instructions
+   - Update `agents/remote-agent.ts` so the `model` field uses that provider's SDK export instead of Groq (for example `openai(this.modelId)` after importing `{ openai } from "@ai-sdk/openai"`)
+   - Set `remoteAgent.modelId` in `mcp-config.json` to a model offered by that provider
+
+8. **(Optional) Install Ollama** to run local LLMs:
 
    ```bash
    # Install: brew install ollama (macOS) or visit ollama.com
@@ -40,7 +46,7 @@
    ollama pull llama3.1:8b  # Pull this model (if limited with hardware)
    ```
 
-8. **Run the application** to start the agent: `bun run host.ts`
+9. **Run the application** to start the agent: `bun run host.ts`
 
 ## Troubleshooting
 
