@@ -46,25 +46,23 @@ The file **sun_facts.txt** containing three facts about the Sun has been uploade
   "mcpServers": {
     "filesystem": {
       "command": "bunx",
-      "args": ["mcp-server-filesystem", "assets"]
+      "args": ["@modelcontextprotocol/server-filesystem", "assets", "downloads"]
     },
     "uplink": {
       "command": "bun",
-      "args": ["run", "servers/cdn/uplink-server.ts"],
-      "env": {
-        "BUNNY_STORAGE_ZONE_NAME": "storage-zone-name",
-        "BUNNY_STORAGE_ACCESS_KEY": "read-write-access-key"
-      }
+      "args": ["run", "servers/cdn/uplink-server.ts", "/"]
     }
-  },
-  "agentProvider": "remoteAgent",
-  "remoteAgent": {
-    "modelId": "llama-3.3-70b-versatile"
   },
   "localAgent": {
     "host": "http://localhost:11434",
-    "modelId": "llama3.2:latest"
-  }
+    "modelId": "gpt-oss:20b"
+  },
+  "remoteAgent": {
+    "host": "https://console.groq.com",
+    "modelId": "openai/gpt-oss-20b"
+  },
+  "agentProvider": "localAgent",
+  "isChatEnabled": true
 }
 ```
 

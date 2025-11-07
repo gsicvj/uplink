@@ -11,7 +11,7 @@
    bun add @modelcontextprotocol/server-filesystem
    ```
 
-3. **Create directories** to enable file operations: `mkdir -p assets downloads`
+3. **Create directories** to enable file operations and logs: `mkdir -p assets downloads logging`
 
 4. **Get a Groq API key** to access free LLM inference: Register for a free trial account at [console.groq.com](https://console.groq.com) and copy your API key
 
