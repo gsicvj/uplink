@@ -19,8 +19,6 @@
 
    ```env
    GROQ_API_KEY=your_key_here
-
-   # Optional: Bunny CDN for cloud uploads
    BUNNY_API_KEY=your_key_here
    BUNNY_STORAGE_ZONE_NAME=your_zone
    BUNNY_STORAGE_ACCESS_KEY=your_access_key
