@@ -9,8 +9,8 @@
       "args": [
         "run",
         "servers/cdn/uplink-server.ts",
-        "folder-baloons",
-        "folder-a"
+        "optional-cdn-folder-a",
+        "optional-cdn-folder-b"
       ]
     }
   },
