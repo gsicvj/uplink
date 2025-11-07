@@ -23,6 +23,6 @@
     "host": "https://console.groq.com",
     "modelId": "openai/gpt-oss-20b"
   },
-  "agentProvider": "remoteAgent",
+  "agentProvider": "localAgent",
   "isChatEnabled": true
 }
