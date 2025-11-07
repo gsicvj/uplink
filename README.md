@@ -1,38 +1,29 @@
-# Uplink - local filesystem and cloud friendly AI-powered agent
+# Uplink – local & remote friendly AI-powered agent
 
-A lightweight open-source tool that fuses local filesystem management with cloud sync, powered by Ollama for on-device LLM integration build on the @modelcontextprotocol client-server guidelines.
+Uplink is a lightweight open-source tool that fuses local filesystem management with optional cloud sync. It combines on-device LLMs (via Ollama) and hosted LLMs (via Groq or other providers) using the @modelcontextprotocol guidelines for extensible tooling.
 
-Runs in terminal. You can browse, edit and create files locally, or upload them to any cloud provider while giving instructions in natural language leveraging AI-powered agents.
+Runs entirely in the terminal: browse, organise, edit and create files, or upload them to a cloud provider while steering the workflow with natural-language instructions.
 
-The agentic loop will run only once: the AI will set a goal based on your prompt, call tools until it reaches a solution and respond with a result message and exit the process.
+By default the agentic loop stays open (`isChatEnabled` defaults to `true`): the AI keeps accepting new prompts until you type `bye`, chaining tool calls between questions. Set `isChatEnabled` to `false` for single-run mode, where the agent takes your prompt, calls MCP tools until it reaches a solution, responds, and exits.
 
 [![license](https://img.shields.io/badge/license-[MIT]-blue.svg)](LICENSE)
 
 ## Key Features
 
-The project supports only a few integrations and connectors at this time:
+The project ships with a focused set of integrations and connectors:
 
-- **Host Application** The example host application runs in terminal.
-- **Local Filesystem Explorer** If host application is used, it will use a filesystem MCP server.
-- **Cloud Upload** Contains custom unofficial MCP server implementation for bunnycdn.
-- **Ollama-powered LLM integration** Access local, open-source large language models via Ollama.
-- **Bun Runtime** Built with Bun instead of Node.js
-- **Model Context Protocol** Implements the @modelcontextprotocol Client, Server, Transport.
-- **CLI & API** Running and interfacing with the host application via local terminal.
+- **Terminal Host Application** Runs entirely in the terminal with a guided chat loop.
+- **Modular MCP Servers** Ships with filesystem browsing/organising and Bunny CDN storage today, but you can swap in any MCP-compatible implementation.
+- **Multi-provider LLM support** Uses local Ollama models and Groq-hosted models out of the box; swap in a different remote provider by changing the import and model reference.
+- **Structured Logging** Detailed performance logs for both local and remote agents.
+- **Bun Runtime** Built with Bun instead of Node.js (tested on macOS).
+- **Model Context Protocol** Implements @modelcontextprotocol client, server, and transport basics.
 
 ## Integration
 
-To bootstrap the host application:
+See `SETUP.md` for the full quick-start guide, environment variable expectations, configuration tips, and troubleshooting steps. It covers everything from installing Bun and dependencies through configuring `mcp-config.json`, adjusting `env.ts`, and running `bun run host.ts`.
 
-- install dependencies from `package.json`
-- install `ollama` to your operating system
-- instal open-source models (here's a repo: [huggingface](https://huggingface.co/models))
-- create `mcp-config.json`
-- create `.env` file and setup project secrets (customize `env.ts` as needed)
-
-To run the application: `bun run host.ts`
-
-Example of a successful prompt when running `gpt-oss` model.
+Example of a successful prompt when running a local model:
 
 ```text
 User:
@@ -48,7 +39,7 @@ Assistant:
 The file **sun_facts.txt** containing three facts about the Sun has been uploaded to the cloud.
 ```
 
-### Example mcp-config.json
+### Example `mcp-config.json`
 
 ```json
 {
@@ -62,20 +53,22 @@ The file **sun_facts.txt** containing three facts about the Sun has been uploade
       "args": ["run", "servers/cdn/uplink-server.ts"],
       "env": {
         "BUNNY_STORAGE_ZONE_NAME": "storage-zone-name",
-        "BUNNY_STORAGE_ACCCES_KEY": "read-write-access-key"
+        "BUNNY_STORAGE_ACCESS_KEY": "read-write-access-key"
       }
     }
   },
-  "ollama": {
-    "host": "http://localhost:11434",
-    "model": "gpt-oss:20b"
+  "agentProvider": "remoteAgent",
+  "remoteAgent": {
+    "modelId": "llama-3.3-70b-versatile"
   },
-  "openai": {
-    "host": "https://todo.dev",
-    "model": "gpt-4.1"
+  "localAgent": {
+    "host": "http://localhost:11434",
+    "modelId": "llama3.2:latest"
   }
 }
 ```
+
+Set `agentProvider` to `remoteAgent` or `localAgent` depending on which provider you want to use by default. Both agents can still be selected dynamically within the host application.
 
 ## Safety & Risk Disclosure (Use at Your Own Risk)
 
@@ -83,12 +76,6 @@ The file **sun_facts.txt** containing three facts about the Sun has been uploade
 - **Security**: Using LLMs will grow the attack surface of your application. Ensure best safety practises. Test locally.
 - **Resource Use**: Local LLMs consume CPU/GPU, memory, and disk I/O.
 - **Dependencies**: Bugs or vulnerabilities in Ollama, Bun, @modelcontextprotocol, or Bunnynet SDK may affect the system.
-
-## TODO / Roadmap
-
-- [x] Add support for external LLMs by using Open AI SDK
-- [x] Add additional custom servers for other cloud providers
-- [x] Add mime type when uploading text files to cloud
 
 ## License
 
