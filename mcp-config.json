@@ -6,12 +6,7 @@
     },
     "uplink": {
       "command": "bun",
-      "args": [
-        "run",
-        "servers/cdn/uplink-server.ts",
-        "optional-cdn-folder-a",
-        "optional-cdn-folder-b"
-      ]
+      "args": ["run", "servers/cdn/uplink-server.ts", "/"]
     }
   },
 
