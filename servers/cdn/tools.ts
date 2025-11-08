@@ -15,12 +15,18 @@ export type FileObject = {
 };
 
 function isPathAllowed(filePath: string, allowedDirs: string[]): boolean {
-  // Normalize the path (remove ./ prefix if present)
-  const normalizedPath = filePath.replace(/^\.\//, "");
+  // Normalize the path (remove ./ prefix and leading /)
+  const normalizedPath = filePath.replace(/^\.\//, "").replace(/^\//, "");
 
   // Check if the path starts with any of the allowed directories
   return allowedDirs.some((dir) => {
-    const normalizedDir = dir.replace(/^\.\//, "");
+    const normalizedDir = dir.replace(/^\.\//, "").replace(/^\//, "");
+
+    // If normalized dir is empty (was "/" or ""), allow everything
+    if (normalizedDir === "") {
+      return true;
+    }
+
     return (
       normalizedPath.startsWith(normalizedDir + "/") ||
       normalizedPath === normalizedDir
