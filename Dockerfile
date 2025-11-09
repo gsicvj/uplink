@@ -1,15 +1,23 @@
-FROM oven/bun:latest
+# Use official Bun image
+FROM oven/bun:1.1.38-alpine
 
+# Set working directory
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lock ./
+COPY package.json bun.lock* ./
 
 # Install dependencies
 RUN bun install --frozen-lockfile
 
-# Copy source code
+# Copy application code
 COPY . .
 
-# Start the server
-CMD ["bun", "server/transport.ts"]
+# Create directories for data persistence
+RUN mkdir -p assets downloads
+
+# Expose port for graph-ui server (if needed)
+EXPOSE 3000
+
+# Set default command
+CMD ["bun", "run", "host.ts"]
