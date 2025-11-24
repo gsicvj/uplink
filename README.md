@@ -75,6 +75,13 @@ Set `agentProvider` to `remoteAgent` or `localAgent` depending on which provider
 - **Resource Use**: Local LLMs consume CPU/GPU, memory, and disk I/O.
 - **Dependencies**: Bugs or vulnerabilities in Ollama, Bun, @modelcontextprotocol, or Bunnynet SDK may affect the system.
 
+## TODO
+
+- [ ] Merge ollama and uplink docker stages into a single stage
+- [ ] Update UX with external CLI libraries
+- [ ] Use input arguments for run startup commands
+- [ ] Train and use a smaller domain specific model
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
