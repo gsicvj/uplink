@@ -1,9 +1,70 @@
 import type { ChatResponse } from "ollama";
-import { appendFile } from "node:fs/promises";
+import { appendFile, mkdir } from "node:fs/promises";
 import type { GenerateTextResult } from "ai";
 
-const localLogPath = "logging/local.log";
-const remoteLogPath = "logging/remote.log";
+/** Local log entry: init, chat, or solve from the local (Ollama) agent. */
+export type LocalLogObject =
+  | {
+    type: "init";
+    createdAt: number;
+    modelId: string;
+    totalDuration: number;
+  }
+  | {
+    type: "chat";
+    modelId: string;
+    createdAt: string;
+    outputTokens: number;
+    outputDuration: number;
+    inputTokens: number;
+    inputDuration: number;
+    totalDuration: number;
+  }
+  | {
+    type: "solve";
+    createdAt: number;
+    modelId: string;
+    totalDuration: number;
+    toolCallsCount: number;
+    toolCallsTotalTime: number;
+    iterationsCount: number;
+  };
+
+/** Remote log entry: init, chat, or solve from the remote agent. */
+export type RemoteLogObject =
+  | {
+    type: "init";
+    createdAt: number;
+    modelId: string;
+    totalDuration: number;
+  }
+  | {
+    type: "chat";
+    modelId: string;
+    createdAt: string;
+    outputTokens: number;
+    outputDuration: number;
+    inputTokens: number;
+    inputDuration: number;
+    totalDuration: number;
+  }
+  | {
+    type: "solve";
+    createdAt: number;
+    modelId: string;
+    totalDuration: number;
+    toolCallsCount: number;
+    toolCallsTotalTime: number;
+    iterationsCount: number;
+  };
+
+const LOG_DIR = "logging";
+const LOCAL_LOG = "local.log";
+const REMOTE_LOG = "remote.log";
+const localLogPath = `${LOG_DIR}/${LOCAL_LOG}`;
+const remoteLogPath = `${LOG_DIR}/${REMOTE_LOG}`;
+
+let isLogDirEnsured = false;
 
 interface ResponseBody {
   body?: {
@@ -21,6 +82,20 @@ interface ResponseBody {
 }
 
 let totalTimeSpent = 0;
+
+async function ensureLogDir() {
+  try {
+    await mkdir(LOG_DIR, { recursive: true });
+
+    isLogDirEnsured = true;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    } else {
+      console.error(error);
+    }
+  }
+}
 
 export async function logLocalResponse({
   response,
@@ -40,7 +115,7 @@ export async function logLocalResponse({
     iterationsCount: number;
   };
 }) {
-  let logObject = null;
+  let logObject: LocalLogObject;
 
   if (init != undefined) {
     logObject = {
@@ -52,7 +127,9 @@ export async function logLocalResponse({
     logObject = {
       type: "chat",
       modelId: response.model,
-      createdAt: response.created_at,
+      createdAt: response.created_at instanceof Date
+        ? response.created_at.toISOString()
+        : response.created_at,
       outputTokens: response.eval_count,
       outputDuration: +(response.eval_duration * 1e-9).toFixed(2),
       inputTokens: response.prompt_eval_count,
@@ -66,9 +143,11 @@ export async function logLocalResponse({
       createdAt: Date.now(),
       ...solve,
     };
+  } else {
+    return;
   }
 
-  appendFile(localLogPath, `${JSON.stringify(logObject)}\n`);
+  await logResponse(localLogPath, logObject)
 }
 
 export async function logRemoteResponse({
@@ -89,7 +168,7 @@ export async function logRemoteResponse({
     iterationsCount: number;
   };
 }) {
-  let logObject = null;
+  let logObject: RemoteLogObject;
 
   if (init != undefined) {
     logObject = {
@@ -102,16 +181,18 @@ export async function logRemoteResponse({
     const {
       total_time = 0,
       prompt_time = 0,
-      completion_time = 0,
+      completion_time = 0
     } = (response.response as ResponseBody).body?.usage ?? {};
 
     logObject = {
       type: "chat",
       modelId: response.response.modelId,
-      createdAt: response.response.timestamp,
-      outputTokens: response.usage.outputTokens,
+      createdAt: response.response.timestamp instanceof Date
+        ? response.response.timestamp.toISOString()
+        : response.response.timestamp,
+      outputTokens: response.usage.outputTokens ?? -1,
       outputDuration: +completion_time.toFixed(2),
-      inputTokens: response.usage.inputTokens,
+      inputTokens: response.usage.inputTokens ?? -1,
       inputDuration: +prompt_time.toFixed(2),
       totalDuration: +total_time.toFixed(2),
     };
@@ -122,7 +203,19 @@ export async function logRemoteResponse({
       createdAt: Date.now(),
       ...solve,
     };
+  } else {
+    return;
   }
 
-  appendFile(remoteLogPath, `${JSON.stringify(logObject)}\n`);
+  logResponse(remoteLogPath, logObject)
+}
+
+async function logResponse(path: string, logObject: LocalLogObject | RemoteLogObject) {
+  if (!isLogDirEnsured) {
+    await ensureLogDir();
+  }
+
+  const logEntry = `${JSON.stringify(logObject)}\n`
+
+  appendFile(path, logEntry);
 }
