@@ -15,15 +15,7 @@
 
 4. **Get a Groq API key** to access free LLM inference: Register for a free trial account at [console.groq.com](https://console.groq.com) and copy your API key
 
-5. **Create `.env` file** to configure API keys (add at least one LLM API key):
-
-   ```env
-   GROQ_API_KEY=your_key_here
-   BUNNY_API_KEY=your_key_here
-   BUNNY_STORAGE_ZONE_NAME=your_zone
-   BUNNY_STORAGE_ACCESS_KEY=your_access_key
-   BUNNY_PULLZONE_URL=https://your-pullzone.b-cdn.net
-   ```
+5. **Create `.env` file**: Copy `.env.example` to `.env` and add at least one LLM API key (and any other keys you need).
 
 6. **Configure `mcp-config.json`** to choose your LLM provider:
 
@@ -46,11 +38,11 @@
    ollama pull llama3.1:8b  # Pull this model (if limited with hardware)
    ```
 
-9. **Run the application** to start the agent: `bun run host.ts`
+9. **Run the application** to start the agent: `bun run host.ts --local assets downloads --remote /`. Use `--local` for allowed filesystem directories and `--remote` for allowed uplink (CDN) directories.
 
 ## Troubleshooting
 
 - **Missing API key errors**: Check your `.env` file has the required keys
 - **Ollama connection failed**: Run `ollama serve` in a separate terminal
 - **Permission errors**: Run `chmod -R 755 assets downloads`
-- **MCP server errors**: Test with `bunx mcp-server-filesystem assets`
+- **MCP server errors**: Test with `bunx @modelcontextprotocol/server-filesystem assets`

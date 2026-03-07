@@ -21,7 +21,7 @@ The project ships with a focused set of integrations and connectors:
 
 ## Integration
 
-See `SETUP.md` for the full quick-start guide, environment variable expectations, configuration tips, and troubleshooting steps. It covers everything from installing Bun and dependencies through configuring `mcp-config.json`, adjusting `env.ts`, and running `bun run host.ts`.
+See `SETUP.md` for the full quick-start guide, environment variable expectations, configuration tips, and troubleshooting steps. It covers installing Bun and dependencies, copying `.env.example` to `.env`, configuring `mcp-config.json`, and running the host. Pass allowed directories as host arguments: `--local` for filesystem directories and `--remote` for uplink (CDN) directories—e.g. `bun run host.ts --local assets downloads --remote /`.
 
 Example of a successful prompt when running a local model:
 
@@ -46,11 +46,11 @@ The file **sun_facts.txt** containing three facts about the Sun has been uploade
   "mcpServers": {
     "filesystem": {
       "command": "bunx",
-      "args": ["@modelcontextprotocol/server-filesystem", "assets", "downloads"]
+      "args": ["@modelcontextprotocol/server-filesystem"]
     },
     "uplink": {
       "command": "bun",
-      "args": ["run", "servers/cdn/uplink-server.ts", "/"]
+      "args": ["run", "servers/cdn/uplink-server.ts"]
     }
   },
   "localAgent": {
