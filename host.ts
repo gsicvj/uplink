@@ -1,7 +1,7 @@
 import { getConfig, type Config } from "./lib/get-mcp-config";
 import { LocalAgent } from "./agents/local-agent";
 import { RemoteAgent } from "./agents/remote-agent";
-import { log, outro } from "@clack/prompts";
+import { cancel, isCancel, log, outro, text } from "@clack/prompts";
 import { getDirsFromArgs } from "./lib/get-dirs-from-args";
 
 type UplinkAgent = RemoteAgent | LocalAgent;
@@ -59,8 +59,18 @@ You are able to chain tools. For example, create file locally, upload to cloud.
 }
 
 async function chatLoop(agent: UplinkAgent, config: Config) {
-  for await (const line of console) {
+  while (true) {
     try {
+      const line = await text({
+        message: "User:",
+      });
+
+      if (isCancel(line)) {
+        cancel('Operation cancelled.');
+        outro("Bye!");
+        process.exit(0);
+      }
+
       // chat loop
       if (line === "bye") {
         // user wants to exit the chat
@@ -68,7 +78,7 @@ async function chatLoop(agent: UplinkAgent, config: Config) {
         return;
       }
 
-      const result = await agent.solve(line);
+      const result = await agent.solve(String(line));
 
       if (result.error) {
         log.error(`Error: ${result.error}`);
@@ -83,4 +93,10 @@ async function chatLoop(agent: UplinkAgent, config: Config) {
   }
 }
 
-main().catch((error) => log.error(error));
+main().catch((error) => {
+  const message =
+    error instanceof Error ? error.message : String(error);
+  log.warn(`The host application encountered an error: ${message}`);
+  outro(`The application exited.`);
+  process.exit(1);
+});

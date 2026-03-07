@@ -5,12 +5,13 @@ import {
   type experimental_MCPClient as MCPClient,
   stepCountIs,
 } from "ai";
-import { log } from "@clack/prompts";
+import { log, spinner } from "@clack/prompts";
 import { logRemoteResponse } from "../lib/message-logger";
 import { groq } from "@ai-sdk/groq";
 import type { Config } from "../lib/get-mcp-config";
 import type { SolveResult } from "./local-agent";
 import type { AllowedDirs } from "../lib/get-dirs-from-args";
+import chalk from "chalk";
 
 export class RemoteAgent {
   private agent: any | null = null;
@@ -37,22 +38,33 @@ export class RemoteAgent {
 
   async connect(config: Config) {
     const startTime = performance.now();
-    const { tools, clients } = await connectAISDKToMCPServers(config);
-    this.clients = clients;
-    this.agent = new Agent({
-      model: groq(this.modelId),
-      system: this.instructions,
-      tools,
-      stopWhen: stepCountIs(10),
-    });
-    const connectTime = +((performance.now() - startTime) / 1000).toFixed(2);
-    logRemoteResponse({
-      init: {
-        modelId: this.modelId,
-        totalDuration: connectTime,
-      },
-    });
-    log.error(`Remote model ${config.remoteAgent.modelId} ready.`);
+    const { tools, clients } = await connectAISDKToMCPServers(config, this.allowedDirs);
+    const warmupSpinner = spinner();
+    warmupSpinner.start(
+      `Warming up model ${config.remoteAgent.modelId} with ${Object.keys(tools).length} tools...`
+    );
+    try {
+      this.clients = clients;
+      this.agent = new Agent({
+        model: groq(this.modelId),
+        system: this.instructions,
+        tools,
+        stopWhen: stepCountIs(10),
+      });
+      const connectTime = +((performance.now() - startTime) / 1000).toFixed(2);
+      await logRemoteResponse({
+        init: {
+          modelId: this.modelId,
+          totalDuration: connectTime,
+        },
+      });
+      warmupSpinner.stop(`Remote model ${config.remoteAgent.modelId} ready.`);
+    } catch (error) {
+      const errorMessage = `Failed to initialize remote agent: ${error instanceof Error ? error.message : String(error)}`;
+      warmupSpinner.stop("");
+      log.error(errorMessage);
+      throw new Error(errorMessage);
+    }
   }
 
   async solve(prompt: string): Promise<SolveResult> {
@@ -76,7 +88,10 @@ export class RemoteAgent {
         role: "assistant",
         content: response.text,
       });
-      log.error(`Assistant: ${response.text}`);
+      log.info("Assistant: ");
+      log.message(response.text, {
+        spacing: 0
+      });
     }
     // log response
     logRemoteResponse({ response });
@@ -90,7 +105,7 @@ export class RemoteAgent {
           : null;
 
     const totalTime = +((performance.now() - startTime) / 1000).toFixed(2);
-    log.error(`Assistant needed ${totalTime}s to complete.`);
+    log.info(chalk.dim(`Assistant needed ${totalTime}s to complete.`));
 
     return {
       content: response.text ?? null,

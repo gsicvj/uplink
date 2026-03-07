@@ -1,7 +1,6 @@
 import { mkdir, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join, relative } from "node:path";
 import { performance } from "node:perf_hooks";
-import { log } from '@clack/prompts';
 
 import { LocalAgent } from "../agents/local-agent";
 import { RemoteAgent } from "../agents/remote-agent";
@@ -92,14 +91,14 @@ async function main() {
   const bunnyApi = new BunnyNetApi();
   const results: IterationResult[] = [];
 
-  log.info(
+  console.log(
     `Running host benchmark for ${options.iterations} iteration${options.iterations === 1 ? "" : "s"
     } using ${config.agentProvider}`
   );
 
   for (let index = 0; index < options.iterations; index++) {
     const iteration = index + 1;
-    log.info(
+    console.log(
       `\n[Iteration ${iteration}] Cleaning assets and remote storage…`
     );
     await resetAssetsState({
@@ -123,14 +122,14 @@ async function main() {
     } catch (error) {
       solveError =
         error instanceof Error ? error.message : "Unknown error during solve";
-      log.error(
+      console.error(
         `[Iteration ${iteration}] Error while solving prompt: ${solveError}`
       );
     } finally {
       try {
         await agent.cleanup();
       } catch (error) {
-        log.error(
+        console.error(
           `[Iteration ${iteration}] Error during agent cleanup: ${error instanceof Error ? error.message : String(error)
           }`
         );
@@ -179,7 +178,7 @@ async function main() {
         error instanceof Error
           ? error.message
           : "Unknown error verifying remote uploads";
-      log.error(
+      console.error(
         `[Iteration ${iteration}] Failed to verify remote uploads: ${remoteVerificationError}`
       );
     }
@@ -301,6 +300,10 @@ function createAgent(config: Config): {
       agent: new RemoteAgent({
         instructions: HOST_INSTRUCTIONS,
         modelId: config.remoteAgent.modelId,
+        allowedDirs: {
+          localDirs: [],
+          remoteDirs: []
+        }
       }),
       provider: "remoteAgent",
       modelId: config.remoteAgent.modelId,
@@ -311,6 +314,10 @@ function createAgent(config: Config): {
     agent: new LocalAgent({
       instructions: HOST_INSTRUCTIONS,
       config,
+      allowedDirs: {
+        localDirs: [],
+        remoteDirs: []
+      }
     }),
     provider: "localAgent",
     modelId: config.localAgent.modelId,
@@ -439,12 +446,12 @@ async function deleteRemoteArtifacts(api: IBunnyNetAPIInterface) {
       try {
         const removed = await api.delete(remotePath);
         if (!removed) {
-          log.warn(
+          console.warn(
             `Remote file ${remotePath} was not removed (may not exist).`
           );
         }
       } catch (error) {
-        log.error(
+        console.error(
           `Failed to delete remote file ${remotePath}: ${error instanceof Error ? error.message : String(error)
           }`
         );
@@ -470,35 +477,35 @@ function logIterationSummary({
   localVerificationPassed: boolean;
   remoteVerificationPassed: boolean;
 }) {
-  log.info(
+  console.log(
     `[Iteration ${iteration}] Completed in ${durationSeconds}s | solve error: ${solveError ?? "none"
     }`
   );
-  log.info(
+  console.log(
     `[Iteration ${iteration}] Local verification: ${localVerificationPassed ? "passed" : "FAILED"
     } (${localFiles.length} new file(s))`
   );
 
   if (localFiles.length > 0) {
     for (const file of localFiles) {
-      log.info(
+      console.log(
         `  - ${file.relativeToProject} (${file.sizeBytes} bytes, modified ${file.modifiedAt})`
       );
     }
   }
 
   if (remoteUploads.length > 0) {
-    log.info(
+    console.log(
       `[Iteration ${iteration}] Remote verification: ${remoteVerificationPassed ? "passed" : "FAILED"
       } (${remoteUploads.length} file(s) updated)`
     );
     for (const file of remoteUploads) {
-      log.info(
+      console.log(
         `  - ${file.path} (${file.length} bytes, updated ${file.lastChanged})`
       );
     }
   } else {
-    log.info(
+    console.log(
       `[Iteration ${iteration}] Remote verification: ${remoteVerificationPassed ? "passed" : "FAILED"
       } (target file oranges.txt not found)`
     );
@@ -522,7 +529,7 @@ async function writeBenchmarkLog(
   await mkdir(dirname(absolutePath), { recursive: true });
   await writeFile(absolutePath, JSON.stringify(summary, null, 2), "utf-8");
 
-  log.info(`\nBenchmark log saved to ${absolutePath}`);
+  console.log(`\nBenchmark log saved to ${absolutePath}`);
 }
 
 async function sleep(ms: number) {
@@ -530,7 +537,7 @@ async function sleep(ms: number) {
 }
 
 await main().catch((error) => {
-  log.error(
+  console.error(
     `Host benchmark failed: ${error instanceof Error ? error.message : String(error)
     }`
   );

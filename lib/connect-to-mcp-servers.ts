@@ -18,7 +18,7 @@ function getClientArgs(serverName: string, serverArgs: string[], allowedDirs: Al
   if (serverName === FILESYSTEM_MCP) {
     if (allowedDirs.localDirs.length === 0) {
       log.warn(
-        `No allowed directories were provided for the "${serverName}" MCP. ` +
+        `No allowed directories were provided for the MCP server "${serverName}". ` +
         `The ${serverName} server may fail to start or have limited functionality. ` +
         `Please specify at least one local directory to allow access.`
       );
@@ -26,7 +26,7 @@ function getClientArgs(serverName: string, serverArgs: string[], allowedDirs: Al
     clientArgs = serverArgs.concat(allowedDirs.localDirs);
   } else if (serverName === UPLINK_MCP) {
     if (allowedDirs.remoteDirs.length === 0) {
-      log.warn(`No allowed directories were provided for the "${serverName}" MCP. ` +
+      log.warn(`No allowed directories were provided for the MCP server "${serverName}" . ` +
         `The ${serverName} server may fail to start or have limited functionality. ` +
         `Please specify at least one remote directory to allow access.`);
     }

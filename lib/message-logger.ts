@@ -83,18 +83,14 @@ interface ResponseBody {
 }
 
 let totalTimeSpent = 0;
-
-async function ensureLogDir() {
+async function ensureLogDir(): Promise<void> {
   try {
     await mkdir(LOG_DIR, { recursive: true });
-
     isLogDirEnsured = true;
   } catch (error) {
-    if (error instanceof Error) {
-      log.error(error.message);
-    } else {
-      log.error(error);
-    }
+    const message =
+      error instanceof Error ? error.message : String(error);
+    log.warn(`Logging will not work because: ${message}`);
   }
 }
 
@@ -208,7 +204,7 @@ export async function logRemoteResponse({
     return;
   }
 
-  logResponse(remoteLogPath, logObject)
+  await logResponse(remoteLogPath, logObject)
 }
 
 async function logResponse(path: string, logObject: LocalLogObject | RemoteLogObject) {

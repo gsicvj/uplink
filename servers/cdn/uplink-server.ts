@@ -75,8 +75,9 @@ async function main() {
       : process.argv.slice(2);
 
   if (directories.length === 0) {
-    log.error("No directory arguments provided");
-    process.exit(1);
+    throw new Error(
+      "At least one directory required. Usage: bun run servers/cdn/uplink-server.ts <dir1> [dir2 ...]"
+    );
   }
 
   log.info(`Using directories: ${directories.join(", ")}`);
@@ -92,6 +93,8 @@ async function main() {
 }
 
 main().catch((error) => {
-  log.error(`Error starting MCP server: ${error}`);
+  const message =
+    error instanceof Error ? error.message : String(error);
+  log.warn(`Uplink MCP Server encountered an error: ${message}`);
   process.exit(1);
 });

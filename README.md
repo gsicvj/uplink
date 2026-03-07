@@ -78,13 +78,16 @@ Set `agentProvider` to `remoteAgent` or `localAgent` depending on which provider
 ## TODO
 
 - [ ] Merge ollama and uplink docker stages into a single stage
-- [-] Update UX with external CLI libraries
-- [ ] Use input arguments for run startup commands
+- [x] Update UX with external CLI libraries (@clack/prompt and @chalk)
+- [x] Use input arguments for run startup commands
 - [ ] Train and use a smaller domain specific model
 - [x] Add .env.example to simplify setting environment variables
 - [x] Fix new setup where ENOENT: no such file or directory, open 'logging/local.log'
 - [x] Move allowed dirs from mcp-config to host app args
 - [ ] Enable tool toogle
+- [ ] Provide script argument for local/remote model
+- [ ] Implement in-app model selection
+- [ ] Implement in-app provider selection
 
 ## License
 

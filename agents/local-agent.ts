@@ -1,6 +1,7 @@
 import { Client } from "../client/client";
 import { connectToMCPServers } from "../lib/connect-to-mcp-servers";
-import { log, intro } from '@clack/prompts';
+import { log, spinner } from '@clack/prompts';
+import chalk from 'chalk';
 
 import { type Config } from "../lib/get-mcp-config";
 import { logLocalResponse } from "../lib/message-logger";
@@ -14,6 +15,7 @@ export interface SolveResult {
 }
 
 type CallToolResponse = Awaited<ReturnType<Client["callTool"]>>;
+
 export class LocalAgent {
   private model: LocalModel;
   private clients: Map<string, Client>;
@@ -65,7 +67,9 @@ export class LocalAgent {
   }
 
   async warmUpModel(): Promise<void> {
-    intro(
+    const warmupSpinner = spinner();
+
+    warmupSpinner.start(
       `Warming up model ${this.config.localAgent.modelId} with ${this.tools.length} tools...`
     );
 
@@ -86,7 +90,7 @@ export class LocalAgent {
       }
 
       await response.json();
-      intro(`Local model ${this.config.localAgent.modelId} ready.`);
+      warmupSpinner.stop(`Local model ${this.config.localAgent.modelId} ready.`);
     } catch (error) {
       throw new Error(
         `Failed to warm up model. Ensure Ollama is running at ${this.config.localAgent.host
@@ -114,6 +118,9 @@ export class LocalAgent {
     // solve the user prompt
     let iterations = 0;
 
+    const thinkingSpinner = spinner();
+    thinkingSpinner.start(chalk.dim("Assistant thinking..."));
+
     do {
       if (iterations++ >= maxIterations) {
         this.messages.push({
@@ -132,7 +139,7 @@ export class LocalAgent {
       iterationsCount++;
 
       if (!chatResponse.message.content && chatResponse.message.thinking) {
-        log.outro(`Assistant: ${chatResponse.message.thinking}`);
+        thinkingSpinner.message(`Assistant thinking... ${chalk.dim(chatResponse.message.thinking)}`);
       }
 
       this.messages.push(chatResponse.message);
@@ -213,19 +220,24 @@ export class LocalAgent {
 
       // agent should exit if there are no tools to call
     } while (toolCalls.length > 0);
+
+    thinkingSpinner.stop("Thinking done.");
     // or respond with a message
     const lastMessage = this.messages[this.messages.length - 1];
 
     if (lastMessage?.content) {
-      log.error(`Assistant: ${lastMessage.content}`);
+      log.info("Assistant: ");
+      log.message(lastMessage.content, {
+        spacing: 0
+      });
     }
 
     const solveTotalTime = +((performance.now() - solveStart) / 1000).toFixed(
       2
     );
 
-    log.error(
-      `${iterationsCount} steps were made in ${solveTotalTime}s . ${toolCallsCount} tools were called in ${toolCallsTotalTime}s.`
+    log.info(
+      chalk.dim(`${iterationsCount} steps were made in ${solveTotalTime}s . ${toolCallsCount} tools were called in ${toolCallsTotalTime}s.`),
     );
     logLocalResponse({
       solve: {
