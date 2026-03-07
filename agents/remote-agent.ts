@@ -5,6 +5,7 @@ import {
   type experimental_MCPClient as MCPClient,
   stepCountIs,
 } from "ai";
+import { log } from "@clack/prompts";
 import { logRemoteResponse } from "../lib/message-logger";
 import { groq } from "@ai-sdk/groq";
 import type { Config } from "../lib/get-mcp-config";
@@ -46,7 +47,7 @@ export class RemoteAgent {
         totalDuration: connectTime,
       },
     });
-    console.error(`Remote model ${config.remoteAgent.modelId} ready.`);
+    log.error(`Remote model ${config.remoteAgent.modelId} ready.`);
   }
 
   async solve(prompt: string): Promise<SolveResult> {
@@ -70,7 +71,7 @@ export class RemoteAgent {
         role: "assistant",
         content: response.text,
       });
-      console.error(`Assistant: ${response.text}`);
+      log.error(`Assistant: ${response.text}`);
     }
     // log response
     logRemoteResponse({ response });
@@ -84,7 +85,7 @@ export class RemoteAgent {
         : null;
 
     const totalTime = +((performance.now() - startTime) / 1000).toFixed(2);
-    console.error(`Assistant needed ${totalTime}s to complete.`);
+    log.error(`Assistant needed ${totalTime}s to complete.`);
 
     return {
       content: response.text ?? null,

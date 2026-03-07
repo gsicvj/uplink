@@ -1,5 +1,6 @@
 import { Client } from "../client/client";
 import { connectToMCPServers } from "../lib/connect-to-mcp-servers";
+import { log, intro } from '@clack/prompts';
 
 import { type Config } from "../lib/get-mcp-config";
 import { logLocalResponse } from "../lib/message-logger";
@@ -59,7 +60,7 @@ export class LocalAgent {
   }
 
   async warmUpModel(): Promise<void> {
-    console.error(
+    intro(
       `Warming up model ${this.config.localAgent.modelId} with ${this.tools.length} tools...`
     );
 
@@ -80,13 +81,11 @@ export class LocalAgent {
       }
 
       await response.json();
-      console.error(`Local model ${this.config.localAgent.modelId} ready.`);
+      intro(`Local model ${this.config.localAgent.modelId} ready.`);
     } catch (error) {
       throw new Error(
-        `Failed to warm up model. Ensure Ollama is running at ${
-          this.config.localAgent.host
-        } with model ${this.config.localAgent.modelId}\nError: ${
-          error instanceof Error ? error.message : "Unknown error"
+        `Failed to warm up model. Ensure Ollama is running at ${this.config.localAgent.host
+        } with model ${this.config.localAgent.modelId}\nError: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
     }
@@ -128,7 +127,7 @@ export class LocalAgent {
       iterationsCount++;
 
       if (!chatResponse.message.content && chatResponse.message.thinking) {
-        console.error(`Assistant: ${chatResponse.message.thinking}`);
+        log.outro(`Assistant: ${chatResponse.message.thinking}`);
       }
 
       this.messages.push(chatResponse.message);
@@ -179,10 +178,9 @@ export class LocalAgent {
             // Handle tool execution error - track attempts
             const attempts = (toolAttempts.get(toolName) || 0) + 1;
             toolAttempts.set(toolName, attempts);
-            const errorMessage = `Error executing "${toolName}": ${
-              error instanceof Error ? error.message : "Unknown error"
+            const errorMessage = `Error executing "${toolName}": ${error instanceof Error ? error.message : "Unknown error"
             }`;
-            console.error(
+            log.error(
               `Tool [error]: ${errorMessage} (attempt ${attempts}/${maxToolRetries})`
             );
 
@@ -214,14 +212,14 @@ export class LocalAgent {
     const lastMessage = this.messages[this.messages.length - 1];
 
     if (lastMessage?.content) {
-      console.error(`Assistant: ${lastMessage.content}`);
+      log.error(`Assistant: ${lastMessage.content}`);
     }
 
     const solveTotalTime = +((performance.now() - solveStart) / 1000).toFixed(
       2
     );
 
-    console.error(
+    log.error(
       `${iterationsCount} steps were made in ${solveTotalTime}s . ${toolCallsCount} tools were called in ${toolCallsTotalTime}s.`
     );
     logLocalResponse({

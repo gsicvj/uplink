@@ -1,5 +1,6 @@
 import type { ChatResponse } from "ollama";
 import { appendFile, mkdir } from "node:fs/promises";
+import { log } from "@clack/prompts";
 import type { GenerateTextResult } from "ai";
 
 /** Local log entry: init, chat, or solve from the local (Ollama) agent. */
@@ -90,9 +91,9 @@ async function ensureLogDir() {
     isLogDirEnsured = true;
   } catch (error) {
     if (error instanceof Error) {
-      console.error(error.message);
+      log.error(error.message);
     } else {
-      console.error(error);
+      log.error(error);
     }
   }
 }

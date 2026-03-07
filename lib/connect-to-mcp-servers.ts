@@ -1,5 +1,6 @@
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { Client } from "../client/client";
+import { log } from "@clack/prompts";
 import type { Config } from "./get-mcp-config";
 import {
   experimental_createMCPClient as createMCPClient,
@@ -34,7 +35,7 @@ export async function connectToMCPServers(config: Config) {
       }
       clients.set(serverName, client);
     } catch (error) {
-      console.error(`Failed to create ${serverName} client: ${error}`);
+      log.error(`Failed to create ${serverName} client: ${error}`);
     }
   }
 
@@ -65,7 +66,7 @@ export async function connectAISDKToMCPServers(config: Config) {
       Object.assign(tools, clientTools);
       clients.set(serverName, client);
     } catch (error) {
-      console.error(`Failed to create ${serverName} client: ${error}`);
+      log.error(`Failed to create ${serverName} client: ${error}`);
     }
   }
 

@@ -1,3 +1,5 @@
+import { log } from "@clack/prompts";
+
 export async function solveAgentLoop() {
   try {
     // Bun style input reading
@@ -40,7 +42,7 @@ export async function solveAgentLoop() {
             throw new Error(`No response came from ${toolName}.`);
           }
           const formattedResponse = this.formatToolResponse(toolResponse);
-          console.error(`Assistant: ${formattedResponse}`);
+          log.error(`Assistant: ${formattedResponse}`);
           this.messages.push({
             role: "tool",
             content: formattedResponse,
@@ -49,12 +51,12 @@ export async function solveAgentLoop() {
       } else {
         // or respond with a message
         const lastMessage = this.messages[this.messages.length - 1];
-        console.error("Assistant: ", lastMessage?.content);
+        log.error("Assistant: ", lastMessage?.content);
       }
       // agent should exit if there are no tools to call
     } while (toolCalls.length > 0);
     /** agent loop ends here */
   } catch (error) {
-    console.error(`Failed to achieve the goal: ${error}`);
+    log.error(`Failed to achieve the goal: ${error}`);
   }
 }

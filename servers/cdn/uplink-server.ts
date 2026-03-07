@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { BunnyNetApi } from "./bunnynet.js";
+import { log } from "@clack/prompts";
 import {
   serverDescription,
   serverName,
@@ -74,11 +75,11 @@ async function main() {
       : process.argv.slice(2);
 
   if (directories.length === 0) {
-    console.error("No directory arguments provided");
+    log.error("No directory arguments provided");
     process.exit(1);
   }
 
-  console.log(`Using directories: ${directories.join(", ")}`);
+  log.info(`Using directories: ${directories.join(", ")}`);
 
   const transport = new StdioServerTransport();
   const api = new BunnyNetApi();
@@ -91,6 +92,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(`Error starting MCP server: ${error}`);
+  log.error(`Error starting MCP server: ${error}`);
   process.exit(1);
 });

@@ -1,6 +1,7 @@
 import { getConfig, type Config } from "./lib/get-mcp-config";
 import { LocalAgent } from "./agents/local-agent";
 import { RemoteAgent } from "./agents/remote-agent";
+import { log, outro } from "@clack/prompts";
 
 type UplinkAgent = RemoteAgent | LocalAgent;
 
@@ -9,7 +10,7 @@ async function main() {
   const config = await getConfig();
   const agentProvider = config.agentProvider;
   if (!config) {
-    console.error("Missing configuration file.");
+    log.error("Missing configuration file.");
     process.exit(1);
   }
 
@@ -59,22 +60,23 @@ async function chatLoop(agent: UplinkAgent, config: Config) {
       // chat loop
       if (line === "bye") {
         // user wants to exit the chat
+        outro("Bye!");
         return;
       }
 
       const result = await agent.solve(line);
 
       if (result.error) {
-        console.error(`Error: ${result.error}`);
+        log.error(`Error: ${result.error}`);
       }
 
       if (config.isChatEnabled === false) {
         break;
       }
     } catch (error) {
-      console.error(`Unexpected error: ${error}`);
+      log.error(`Unexpected error: ${error}`);
     }
   }
 }
 
-main().catch((error) => console.error(error));
+main().catch((error) => log.error(error));

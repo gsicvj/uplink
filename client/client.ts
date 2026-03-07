@@ -1,6 +1,7 @@
 import { Client as MCPClient } from "@modelcontextprotocol/sdk/client";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import type { Tool } from "ollama";
+import { log } from "@clack/prompts";
 export class Client {
   private mcpClient: MCPClient;
   private transport: StdioClientTransport;
@@ -93,7 +94,7 @@ export class Client {
     try {
       await this.mcpClient.connect(this.transport);
     } catch (error) {
-      console.error(`Failed to connect MCP Client: ${error}`);
+      log.error(`Failed to connect MCP Client: ${error}`);
       throw error;
     }
   }

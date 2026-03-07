@@ -1,3 +1,5 @@
+import { log } from "@clack/prompts";
+
 export function parseToolArguments(
   args: string | Record<string, unknown>
 ): Record<string, unknown> {
@@ -5,7 +7,7 @@ export function parseToolArguments(
     try {
       return JSON.parse(args);
     } catch (error) {
-      console.error(`Failed to parse tool arguments`);
+      log.error(`Failed to parse tool arguments`);
       return { value: args };
     }
   }
