@@ -83,6 +83,7 @@ Set `agentProvider` to `remoteAgent` or `localAgent` depending on which provider
 - [ ] Train and use a smaller domain specific model
 - [ ] Add .env.example to simplify setting environment variables
 - [x] Fix new setup where ENOENT: no such file or directory, open 'logging/local.log'
+- [x] Move allowed dirs from mcp-config to host app args
 
 ## License
 

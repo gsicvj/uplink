@@ -2,11 +2,13 @@ import { getConfig, type Config } from "./lib/get-mcp-config";
 import { LocalAgent } from "./agents/local-agent";
 import { RemoteAgent } from "./agents/remote-agent";
 import { log, outro } from "@clack/prompts";
+import { getDirsFromArgs } from "./lib/get-dirs-from-args";
 
 type UplinkAgent = RemoteAgent | LocalAgent;
 
 async function main() {
   let agent: UplinkAgent | null;
+  const allowedDirs = await getDirsFromArgs(Bun.argv);
   const config = await getConfig();
   const agentProvider = config.agentProvider;
   if (!config) {
@@ -35,11 +37,13 @@ You are able to chain tools. For example, create file locally, upload to cloud.
     agent = new RemoteAgent({
       instructions,
       modelId: config.remoteAgent.modelId,
+      allowedDirs
     });
   } else if (agentProvider === "localAgent") {
     agent = new LocalAgent({
       instructions,
       config,
+      allowedDirs
     });
   } else {
     throw new Error(

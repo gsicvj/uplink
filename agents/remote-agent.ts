@@ -10,6 +10,7 @@ import { logRemoteResponse } from "../lib/message-logger";
 import { groq } from "@ai-sdk/groq";
 import type { Config } from "../lib/get-mcp-config";
 import type { SolveResult } from "./local-agent";
+import type { AllowedDirs } from "../lib/get-dirs-from-args";
 
 export class RemoteAgent {
   private agent: any | null = null;
@@ -17,14 +18,18 @@ export class RemoteAgent {
   private clients: Map<string, MCPClient> | null = null;
   private instructions: string;
   private modelId: string;
+  private allowedDirs: AllowedDirs;
 
   constructor({
     instructions,
     modelId,
+    allowedDirs
   }: {
     instructions: string;
     modelId: string;
+    allowedDirs: AllowedDirs
   }) {
+    this.allowedDirs = allowedDirs;
     this.instructions = instructions;
     this.modelId = modelId;
     // Nice to research: There are "structuredOutputs" that define how output looks like
@@ -81,8 +86,8 @@ export class RemoteAgent {
       response.finishReason === "error"
         ? "Agent encountered an error"
         : response.finishReason === "step-limit"
-        ? "Max iterations reached"
-        : null;
+          ? "Max iterations reached"
+          : null;
 
     const totalTime = +((performance.now() - startTime) / 1000).toFixed(2);
     log.error(`Assistant needed ${totalTime}s to complete.`);

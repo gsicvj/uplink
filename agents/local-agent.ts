@@ -6,6 +6,7 @@ import { type Config } from "../lib/get-mcp-config";
 import { logLocalResponse } from "../lib/message-logger";
 import { LocalModel } from "../models/llm";
 import type { Message, Tool, ToolCall, ChatResponse } from "ollama";
+import type { AllowedDirs } from "../lib/get-dirs-from-args";
 
 export interface SolveResult {
   content: string | null;
@@ -20,14 +21,18 @@ export class LocalAgent {
   public tools: Tool[] = [];
   private messages: Message[];
   private config: Config;
+  private allowedDirs: AllowedDirs;
 
   constructor({
     instructions,
     config,
+    allowedDirs
   }: {
     instructions: string;
     config: Config;
+    allowedDirs: AllowedDirs
   }) {
+    this.allowedDirs = allowedDirs;
     this.messages = [
       {
         role: "system",
@@ -45,7 +50,7 @@ export class LocalAgent {
 
   async connect(config: Config) {
     const startTime = performance.now();
-    const { clients, toolMap, tools } = await connectToMCPServers(config);
+    const { clients, toolMap, tools } = await connectToMCPServers(config, this.allowedDirs);
     this.clients = clients;
     this.toolMap = toolMap;
     this.tools = tools;
@@ -179,7 +184,7 @@ export class LocalAgent {
             const attempts = (toolAttempts.get(toolName) || 0) + 1;
             toolAttempts.set(toolName, attempts);
             const errorMessage = `Error executing "${toolName}": ${error instanceof Error ? error.message : "Unknown error"
-            }`;
+              }`;
             log.error(
               `Tool [error]: ${errorMessage} (attempt ${attempts}/${maxToolRetries})`
             );

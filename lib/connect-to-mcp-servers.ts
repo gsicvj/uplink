@@ -6,10 +6,38 @@ import {
   experimental_createMCPClient as createMCPClient,
   type experimental_MCPClient as MCPClient,
 } from "ai";
+import type { AllowedDirs } from "./get-dirs-from-args";
+
+const FILESYSTEM_MCP = "filesystem";
+const UPLINK_MCP = "uplink";
 
 export type ToolType = Awaited<ReturnType<MCPClient["tools"]>>;
 
-export async function connectToMCPServers(config: Config) {
+function getClientArgs(serverName: string, serverArgs: string[], allowedDirs: AllowedDirs) {
+  let clientArgs = [];
+  if (serverName === FILESYSTEM_MCP) {
+    if (allowedDirs.localDirs.length === 0) {
+      log.warn(
+        `No allowed directories were provided for the "${serverName}" MCP. ` +
+        `The ${serverName} server may fail to start or have limited functionality. ` +
+        `Please specify at least one local directory to allow access.`
+      );
+    }
+    clientArgs = serverArgs.concat(allowedDirs.localDirs);
+  } else if (serverName === UPLINK_MCP) {
+    if (allowedDirs.remoteDirs.length === 0) {
+      log.warn(`No allowed directories were provided for the "${serverName}" MCP. ` +
+        `The ${serverName} server may fail to start or have limited functionality. ` +
+        `Please specify at least one remote directory to allow access.`);
+    }
+    clientArgs = serverArgs.concat(allowedDirs.remoteDirs);
+  } else {
+    clientArgs = serverArgs;
+  }
+  return clientArgs;
+}
+
+export async function connectToMCPServers(config: Config, allowedDirs: AllowedDirs) {
   const tools = [];
   const clients: Map<string, Client> = new Map();
   const toolMap: Map<string, Client> = new Map();
@@ -17,10 +45,11 @@ export async function connectToMCPServers(config: Config) {
   // Connect to all servers first
   for (const [serverName, serverConfig] of Object.entries(config.mcpServers)) {
     try {
+      const clientArgs = getClientArgs(serverName, serverConfig.args, allowedDirs);
       const client = new Client({
         serverName,
         command: serverConfig.command,
-        args: serverConfig.args,
+        args: clientArgs
       });
       await client.connectToServer();
       await client.saveTools();
@@ -46,14 +75,15 @@ export async function connectToMCPServers(config: Config) {
   };
 }
 
-export async function connectAISDKToMCPServers(config: Config) {
+export async function connectAISDKToMCPServers(config: Config, allowedDirs: AllowedDirs) {
   const clients: Map<string, MCPClient> = new Map();
   let tools: ToolType = {};
 
   for (const [serverName, serverConfig] of Object.entries(config.mcpServers)) {
+    const clientArgs = getClientArgs(serverName, serverConfig.args, allowedDirs);
     const transport = new StdioClientTransport({
       command: serverConfig.command,
-      args: serverConfig.args,
+      args: clientArgs,
       stderr: "ignore",
     });
 
