@@ -92,9 +92,11 @@ async function main() {
   await server.connect(transport);
 }
 
-main().catch((error) => {
-  const message =
-    error instanceof Error ? error.message : String(error);
-  log.warn(`Uplink MCP Server encountered an error: ${message}`);
-  process.exit(1);
-});
+if (import.meta.main) {
+  main().catch((error) => {
+    const message =
+      error instanceof Error ? error.message : String(error);
+    log.warn(`Uplink MCP Server encountered an error: ${message}`);
+    process.exit(1);
+  });
+}

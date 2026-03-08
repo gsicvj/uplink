@@ -37,10 +37,20 @@ export type RemoteConfig = Config["remoteAgent"];
 const mcpConfigPath = "mcp-config.json";
 let config: object | null = null;
 
+/** For tests: reset in-memory cache so next getConfig() re-reads file. */
+export function resetConfigCache(): void {
+  config = null;
+}
+
+/** For tests: load config from a specific path (no cache). */
+export async function getConfigFromPath(path: string): Promise<Config> {
+  const file = Bun.file(path);
+  return (await file.json()) as Config;
+}
+
 export const getConfig = async () => {
   if (config == null) {
-    const file = Bun.file(mcpConfigPath);
-    config = await file.json();
+    config = await getConfigFromPath(mcpConfigPath);
   }
   return config as Config;
 };

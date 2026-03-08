@@ -20,7 +20,9 @@
   "private": false,
   "scripts": {
     "bench:mcp": "bun run benchmarks/tool-benchmark.ts",
-    "bench:host": "bun run benchmarks/host-benchmark.ts"
+    "bench:host": "bun run benchmarks/host-benchmark.ts",
+    "test": "bun test",
+    "test:coverage": "bun test --coverage"
   },
   "devDependencies": {
     "@types/bun": "latest",

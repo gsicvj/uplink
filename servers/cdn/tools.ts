@@ -14,7 +14,7 @@ export type FileObject = {
   stream: ReadableStream<Uint8Array>;
 };
 
-function isPathAllowed(filePath: string, allowedDirs: string[]): boolean {
+export function isPathAllowed(filePath: string, allowedDirs: string[]): boolean {
   // Normalize the path (remove ./ prefix and leading /)
   const normalizedPath = filePath.replace(/^\.\//, "").replace(/^\//, "");
 

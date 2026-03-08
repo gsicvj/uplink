@@ -90,6 +90,7 @@ Set `agentProvider` to `remoteAgent` or `localAgent` depending on which provider
 - [ ] Provide script argument for local/remote model
 - [ ] Implement in-app model selection
 - [ ] Implement in-app provider selection
+- [x] Add unit high and medium value tests
 
 ## License
 

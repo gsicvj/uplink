@@ -13,8 +13,8 @@ const UPLINK_MCP = "uplink";
 
 export type ToolType = Awaited<ReturnType<MCPClient["tools"]>>;
 
-function getClientArgs(serverName: string, serverArgs: string[], allowedDirs: AllowedDirs) {
-  let clientArgs = [];
+export function getClientArgs(serverName: string, serverArgs: string[], allowedDirs: AllowedDirs): string[] {
+  let clientArgs: string[] = [];
   if (serverName === FILESYSTEM_MCP) {
     if (allowedDirs.localDirs.length === 0) {
       log.warn(
