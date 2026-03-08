@@ -8,6 +8,8 @@ Runs entirely in the terminal: browse, organise, edit and create files, or uploa
 
 By default the agentic loop stays open (`isChatEnabled` defaults to `true`): the AI keeps accepting new prompts until you type `bye`, chaining tool calls between questions. Set `isChatEnabled` to `false` for single-run mode, where the agent takes your prompt, calls MCP tools until it reaches a solution, responds, and exits.
 
+[![CI](https://github.com/gsicvj/uplink/actions/workflows/ci.yml/badge.svg)](https://github.com/gsicvj/uplink/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/gsicvj/uplink/graph/badge.svg)](https://codecov.io/gh/gsicvj/uplink)
 [![license](https://img.shields.io/badge/license-[MIT]-blue.svg)](LICENSE)
 
 ## Key Features
