@@ -7,6 +7,20 @@ export const envSchema = z.object({
   BUNNY_PULLZONE_URL: z.string().url("Missing pullzone URL"),
 });
 
-export const env = envSchema.parse(Bun.env);
-
 export type Env = z.infer<typeof envSchema>;
+
+let _env: Env | null = null;
+
+function getEnv(): Env {
+  if (_env === null) {
+    _env = envSchema.parse(Bun.env);
+  }
+  return _env;
+}
+
+/** Parsed env (lazy: validated on first access so tests can load modules without setting CI env vars). */
+export const env = new Proxy({} as Env, {
+  get(_, key: keyof Env) {
+    return getEnv()[key];
+  },
+});
