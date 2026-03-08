@@ -1,3 +1,5 @@
+![Uplink](./static/uplink-logo.svg)
+
 # Uplink – local & remote friendly AI-powered agent
 
 Uplink is a lightweight open-source tool that fuses local filesystem management with optional cloud sync. It combines on-device LLMs (via Ollama) and hosted LLMs (via Groq or other providers) using the @modelcontextprotocol guidelines for extensible tooling.
