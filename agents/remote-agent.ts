@@ -74,6 +74,8 @@ export class RemoteAgent {
       role: "user",
       content: prompt,
     });
+    const solveSpinner = spinner();
+    solveSpinner.start("Solving.");
     /*
       - Automatically handles the tool-calling loop
       - Decides when to call tools vs respond
@@ -88,6 +90,8 @@ export class RemoteAgent {
         role: "assistant",
         content: response.text,
       });
+      solveSpinner.stop(`Solved.`);
+
       log.info("Assistant: ");
       log.message(response.text, {
         spacing: 0
