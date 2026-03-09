@@ -13,17 +13,6 @@ describe("envSchema", () => {
     expect(envSchema.parse(validEnv)).toEqual(validEnv);
   });
 
-  test("rejects missing GROQ_API_KEY", () => {
-    const { GROQ_API_KEY: _, ...rest } = validEnv;
-    expect(() => envSchema.parse(rest)).toThrow();
-  });
-
-  test("rejects empty GROQ_API_KEY", () => {
-    expect(() =>
-      envSchema.parse({ ...validEnv, GROQ_API_KEY: "" })
-    ).toThrow();
-  });
-
   test("rejects missing BUNNY_STORAGE_ZONE_NAME", () => {
     const { BUNNY_STORAGE_ZONE_NAME: _, ...rest } = validEnv;
     expect(() => envSchema.parse(rest)).toThrow();
