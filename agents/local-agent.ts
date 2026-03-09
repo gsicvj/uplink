@@ -8,6 +8,7 @@ import { logLocalResponse } from "../lib/message-logger";
 import { LocalModel } from "../models/llm";
 import type { Message, Tool, ToolCall, ChatResponse } from "ollama";
 import type { AllowedDirs } from "../lib/get-dirs-from-args";
+import type { McpConfig } from "../config";
 
 export interface SolveResult {
   content: string | null;
@@ -22,7 +23,7 @@ export class LocalAgent {
   private toolMap: Map<string, Client>;
   public tools: Tool[] = [];
   private messages: Message[];
-  private config: Config;
+  private config: McpConfig;
   private allowedDirs: AllowedDirs;
 
   constructor({
@@ -31,7 +32,7 @@ export class LocalAgent {
     allowedDirs
   }: {
     instructions: string;
-    config: Config;
+    config: McpConfig;
     allowedDirs: AllowedDirs
   }) {
     this.allowedDirs = allowedDirs;
@@ -50,7 +51,7 @@ export class LocalAgent {
     });
   }
 
-  async connect(config: Config) {
+  async connect(config: McpConfig) {
     const startTime = performance.now();
     const { clients, toolMap, tools } = await connectToMCPServers(config, this.allowedDirs);
     this.clients = clients;

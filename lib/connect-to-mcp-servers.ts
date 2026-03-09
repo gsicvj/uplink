@@ -7,6 +7,7 @@ import {
   type experimental_MCPClient as MCPClient,
 } from "ai";
 import type { AllowedDirs } from "./get-dirs-from-args";
+import type { McpConfig } from "../config";
 
 const FILESYSTEM_MCP = "filesystem";
 const UPLINK_MCP = "uplink";
@@ -37,7 +38,7 @@ export function getClientArgs(serverName: string, serverArgs: string[], allowedD
   return clientArgs;
 }
 
-export async function connectToMCPServers(config: Config, allowedDirs: AllowedDirs) {
+export async function connectToMCPServers(config: McpConfig, allowedDirs: AllowedDirs) {
   const tools = [];
   const clients: Map<string, Client> = new Map();
   const toolMap: Map<string, Client> = new Map();
@@ -75,7 +76,7 @@ export async function connectToMCPServers(config: Config, allowedDirs: AllowedDi
   };
 }
 
-export async function connectAISDKToMCPServers(config: Config, allowedDirs: AllowedDirs) {
+export async function connectAISDKToMCPServers(config: McpConfig, allowedDirs: AllowedDirs) {
   const clients: Map<string, MCPClient> = new Map();
   let tools: ToolType = {};
 

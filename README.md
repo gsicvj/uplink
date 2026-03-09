@@ -93,6 +93,8 @@ Set `agentProvider` to `remoteAgent` or `localAgent` depending on which provider
 - [ ] Implement in-app model selection
 - [ ] Implement in-app provider selection
 - [x] Add unit high and medium value tests
+- [ ] Simplify config and Zod schemas
+- [ ] Enter chat mode when no args are provided, remove isChatEnabled flag
 
 ## License
 

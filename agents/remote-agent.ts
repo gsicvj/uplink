@@ -12,6 +12,7 @@ import type { Config } from "../lib/get-mcp-config";
 import type { SolveResult } from "./local-agent";
 import type { AllowedDirs } from "../lib/get-dirs-from-args";
 import chalk from "chalk";
+import type { McpConfig } from "../config";
 
 export class RemoteAgent {
   private agent: any | null = null;
@@ -36,7 +37,7 @@ export class RemoteAgent {
     // Nice to research: There are "structuredOutputs" that define how output looks like
   }
 
-  async connect(config: Config) {
+  async connect(config: McpConfig) {
     const startTime = performance.now();
     const { tools, clients } = await connectAISDKToMCPServers(config, this.allowedDirs);
     const warmupSpinner = spinner();
