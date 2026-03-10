@@ -76,3 +76,4 @@ ENV/
 logging/*.log
 assets/
 downloads/
+mcp-config.json
