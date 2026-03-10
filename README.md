@@ -95,6 +95,7 @@ Set `agentProvider` to `remoteAgent` or `localAgent` depending on which provider
 - [x] Add unit high and medium value tests
 - [-] Simplify config and Zod schemas
 - [ ] Enter chat mode when no args are provided, remove isChatEnabled flag
+- [ ] Implement terminal history
 - [ ] Re-iterate on user flow and plan it with stories, then implement changes
 - [ ] Train and use a smaller domain specific model
 
