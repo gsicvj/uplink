@@ -54,7 +54,7 @@ async function chatLoop(agent: UplinkAgent, config: Config) {
       }
 
       // chat loop
-      if (line === "bye") {
+      if (line === "/bye") {
         // user wants to exit the chat
         outro("Bye!");
         return;
