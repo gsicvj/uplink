@@ -3,12 +3,12 @@ import { connectToMCPServers } from "../lib/connect-to-mcp-servers";
 import { log, spinner } from '@clack/prompts';
 import chalk from 'chalk';
 
-import { type Config } from "../lib/get-mcp-config";
 import { logLocalResponse } from "../lib/message-logger";
 import { LocalModel } from "../models/llm";
 import type { Message, Tool, ToolCall, ChatResponse } from "ollama";
 import type { AllowedDirs } from "../lib/get-dirs-from-args";
-import type { McpConfig } from "../config";
+import type { McpConfig } from "../config-validation";
+import { getConfig } from "../lib/get-mcp-config";
 
 export interface SolveResult {
   content: string | null;
@@ -18,17 +18,15 @@ export interface SolveResult {
 type CallToolResponse = Awaited<ReturnType<Client["callTool"]>>;
 
 export class LocalAgent {
-  private model: LocalModel;
+  private model: LocalModel | null = null;
   private clients: Map<string, Client>;
   private toolMap: Map<string, Client>;
   public tools: Tool[] = [];
   private messages: Message[];
-  private config: McpConfig;
   private allowedDirs: AllowedDirs;
 
   constructor({
     instructions,
-    config,
     allowedDirs
   }: {
     instructions: string;
@@ -44,14 +42,17 @@ export class LocalAgent {
     ];
     this.toolMap = new Map();
     this.clients = new Map();
-    this.config = config;
-    this.model = new LocalModel({
-      modelId: config.localAgent.modelId,
-      host: config.localAgent.host,
-    });
   }
 
-  async connect(config: McpConfig) {
+  async connect() {
+    const config = await getConfig();
+    if (!this.model) {
+      this.model = new LocalModel({
+        modelId: config.localAgent.modelId,
+        host: config.localAgent.host,
+        models: config.localAgent.models
+      });
+    }
     const startTime = performance.now();
     const { clients, toolMap, tools } = await connectToMCPServers(config, this.allowedDirs);
     this.clients = clients;
@@ -69,17 +70,18 @@ export class LocalAgent {
 
   async warmUpModel(): Promise<void> {
     const warmupSpinner = spinner();
+    const config = await getConfig();
 
     warmupSpinner.start(
-      `Warming up model ${this.config.localAgent.modelId} with ${this.tools.length} tools...`
+      `Warming up model ${config.localAgent.modelId} with ${this.tools.length} tools...`
     );
 
     try {
-      const response = await fetch(`${this.config.localAgent.host}/api/chat`, {
+      const response = await fetch(`${config.localAgent.host}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: this.config.localAgent.modelId,
+          model: config.localAgent.modelId,
           messages: [{ role: "user", content: "Hi" }],
           tools: this.tools,
           stream: false,
@@ -91,17 +93,18 @@ export class LocalAgent {
       }
 
       await response.json();
-      warmupSpinner.stop(`Local model ${this.config.localAgent.modelId} ready.`);
+      warmupSpinner.stop(`Local model ${config.localAgent.modelId} ready.`);
     } catch (error) {
       throw new Error(
-        `Failed to warm up model. Ensure Ollama is running at ${this.config.localAgent.host
-        } with model ${this.config.localAgent.modelId}\nError: ${error instanceof Error ? error.message : "Unknown error"
+        `Failed to warm up model. Ensure Ollama is running at ${config.localAgent.host
+        } with model ${config.localAgent.modelId}\nError: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
     }
   }
 
   async solve(prompt: string, maxIterations = 100): Promise<SolveResult> {
+    const config = await getConfig();
     const solveStart = performance.now();
     let chatResponse: ChatResponse | undefined;
     let toolCalls: ToolCall[];
@@ -132,7 +135,7 @@ export class LocalAgent {
         break;
       }
       // first process the prompt
-      chatResponse = await this.model.createMessage({
+      chatResponse = await this.model!.createMessage({
         messages: this.messages,
         tools: this.tools,
       });
@@ -242,7 +245,7 @@ export class LocalAgent {
     );
     logLocalResponse({
       solve: {
-        modelId: this.config.localAgent.modelId,
+        modelId: config.localAgent.modelId,
         totalDuration: solveTotalTime,
         toolCallsCount,
         toolCallsTotalTime,
@@ -266,6 +269,12 @@ export class LocalAgent {
         .join("\n");
     }
     return String(content);
+  }
+
+  async setModel(modelId: string) {
+    await this.cleanup();
+    await this.model?.setModel(modelId);
+    await this.connect();
   }
 
   async cleanup() {

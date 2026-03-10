@@ -6,9 +6,9 @@ import { LocalAgent } from "../agents/local-agent";
 import { RemoteAgent } from "../agents/remote-agent";
 import { BunnyNetApi } from "../servers/cdn/bunnynet";
 import type { IBunnyNetAPIInterface } from "../servers/cdn/bunnynet";
-import { getConfig, type Config } from "../lib/get-mcp-config";
+import { getConfig } from "../lib/get-mcp-config";
 import type { file as BunnyFileNamespace } from "@bunny.net/storage-sdk";
-import type { McpConfig } from "../config";
+import type { McpConfig } from "../config-validation";
 
 const PROMPT = "Generate 2 facts about oranges and upload as oranges.txt.";
 const DEFAULT_ITERATIONS = 5;
@@ -88,13 +88,13 @@ interface BenchmarkSummary {
 async function main() {
   const config = await getConfig();
   const options = parseOptions();
-  const assetsDirectory = resolveAssetsDirectory(config!);
+  const assetsDirectory = resolveAssetsDirectory(config);
   const bunnyApi = new BunnyNetApi();
   const results: IterationResult[] = [];
 
   console.log(
     `Running host benchmark for ${options.iterations} iteration${options.iterations === 1 ? "" : "s"
-    } using ${config?.agentProvider}`
+    } using ${config.agentProvider}`
   );
 
   for (let index = 0; index < options.iterations; index++) {
@@ -107,7 +107,7 @@ async function main() {
       api: bunnyApi,
     });
 
-    const { agent, provider, modelId } = createAgent(config!);
+    const { agent, provider, modelId } = createAgent(config);
     const startedAt = new Date();
     const localFilesBefore = await listLocalFiles(assetsDirectory);
     const startTime = performance.now();
@@ -116,7 +116,7 @@ async function main() {
     let solveError: string | null = null;
 
     try {
-      await agent.connect(config!);
+      await agent.connect();
       const result = await agent.solve(options.prompt);
       solveContent = result.content;
       solveError = result.error;
@@ -221,11 +221,11 @@ async function main() {
     iterations: options.iterations,
     prompt: options.prompt,
     assetsDirectory,
-    agentProvider: config?.agentProvider,
+    agentProvider: config.agentProvider,
     modelId:
-      config?.agentProvider === "remoteAgent"
-        ? config?.remoteAgent.modelId
-        : config?.localAgent.modelId,
+      config.agentProvider === "remoteAgent"
+        ? config.remoteAgent.modelId
+        : config.localAgent.modelId,
     results,
   };
 

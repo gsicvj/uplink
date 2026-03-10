@@ -1,35 +1,6 @@
-import type { McpConfig } from "../config";
-
-export type LLM =
-  | "qwen3:0.6b"
-  | "gpt-oss:20b"
-  | "gpt-oss-faster"
-  | "gemma:2b"
-  | "cow/gemma2_tools"
-  | "phi3:latest"
-  | "llama3-groq-tool-use"
-  | "llama3.1:8b"
-  | "llama3.2:3b";
-
-export type Config = {
-  mcpServers: {
-    [key: string]: {
-      command: string;
-      args: string[];
-      roots?: Array<{ uri: string; name: string }>;
-    };
-  };
-  localAgent: {
-    host: string;
-    modelId: LLM;
-  };
-  remoteAgent: {
-    host: string;
-    modelId: string; // How to import the type? Lib doesn't export.
-  };
-  agentProvider: "localAgent" | "remoteAgent";
-  isChatEnabled: boolean;
-};
+import { log } from "@clack/prompts";
+import { validateMcpConfig, type AgentConfig, type McpConfig, type McpServerConfig, type ProviderOption } from "../config-validation";
+import { FILESYSTEM_MCP, UPLINK_MCP } from "../lib/connect-to-mcp-servers";
 
 const MCP_CONFIG_PATH = "mcp-config.json";
 let config: McpConfig | null = null;
@@ -40,14 +11,16 @@ export function resetConfigCache(): void {
 }
 
 /** For tests: load config from a specific path (no cache). */
-export async function getConfigFromPath(path: string): Promise<McpConfig | null> {
+export async function getConfigFromPath(path: string) {
   try {
     const file = Bun.file(path);
-    return await file.json();
+    const unsafeConfig = await file.json();
+    const validated = validateMcpConfig(unsafeConfig);
+    return validated;
   } catch (error) {
-    console.error("Unable to retrieve config.");
+    log.error("Missing or invalid config file.");
+    throw error;
   }
-  return null;
 }
 
 export const getConfig = async () => {
@@ -57,19 +30,25 @@ export const getConfig = async () => {
   return config;
 };
 
-const updateConfig = async () => {
-  if (config == null) {
-    return;
-  }
+const updateConfig = async (updated: McpConfig) => {
   try {
-    const stringifiedConfig = JSON.stringify(config, null, 2);
+    const validated = validateMcpConfig(updated);
+    const stringifiedConfig = JSON.stringify(validated, null, 2);
     await Bun.write(MCP_CONFIG_PATH, stringifiedConfig);
+    config = JSON.parse(stringifiedConfig);
+    return config;
   } catch (error) {
-    console.error("Unable to update config.", error);
+    log.error("Unable to update config.");
+    return null;
   }
 }
 
-export const configureDirectories = () => {
+export const configureDirectories = (serverName: typeof FILESYSTEM_MCP | typeof UPLINK_MCP, dirs: string[]) => {
+  const updatedServer = {
+    ...config!.mcpServers[serverName],
+    vargs: dirs,
+  } as McpServerConfig;
+
   // TODO: have to make a way to tell agent about required items per server
   // I'm thinking about { required: { dirs: string[] }}
   // But what about dynamically added servers, and avoiding hardcoding config.
@@ -86,13 +65,30 @@ export const configureDirectories = () => {
   // - Propose to set and validate Y for server X
   // - If allowed it would update config for server X
   // - *** BUT IT would have to know to read and send with server config "does it work out of the box?"
-  throw new Error("Function not implemented.");
+  return updateConfig({
+    ...config!,
+    mcpServers: {
+      ...config!.mcpServers,
+      [serverName]: updatedServer
+    }
+  })
 }
 
-export const configureProvider = () => {
-  throw new Error("Function not implemented.");
+export const configureProvider = (newProvider: ProviderOption) => {
+  const newConfig = {
+    ...config!,
+    agentProvider: newProvider
+  }
+  return updateConfig(newConfig);
 }
 
-export const configureModel = () => {
-  throw new Error("Function not implemented.");
+export const configureModel = (provider: ProviderOption, modelId: string) => {
+  const newProvider: AgentConfig = {
+    ...config![provider],
+    modelId
+  }
+  return updateConfig({
+    ...config!,
+    [provider]: newProvider
+  });
 }

@@ -84,17 +84,19 @@ Set `agentProvider` to `remoteAgent` or `localAgent` depending on which provider
 - [ ] Merge ollama and uplink docker stages into a single stage
 - [x] Update UX with external CLI libraries (@clack/prompt and @chalk)
 - [x] Use input arguments for run startup commands
-- [ ] Train and use a smaller domain specific model
 - [x] Add .env.example to simplify setting environment variables
 - [x] Fix new setup where ENOENT: no such file or directory, open 'logging/local.log'
 - [x] Move allowed dirs from mcp-config to host app args
-- [ ] Enable tool toogle
+- [ ] Enable tool toogle or multiple select for allowed/banned
 - [ ] Provide script argument for local/remote model
-- [ ] Implement in-app model selection
-- [ ] Implement in-app provider selection
+- [-] Implement in-app model selection
+- [-] Implement in-app provider selection
+- [-] Implement in-app allowed directories selection
 - [x] Add unit high and medium value tests
-- [ ] Simplify config and Zod schemas
+- [-] Simplify config and Zod schemas
 - [ ] Enter chat mode when no args are provided, remove isChatEnabled flag
+- [ ] Re-iterate on user flow and plan it with stories, then implement changes
+- [ ] Train and use a smaller domain specific model
 
 ## License
 

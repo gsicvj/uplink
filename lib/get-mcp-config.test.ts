@@ -5,7 +5,7 @@ import {
   getConfig,
   resetConfigCache,
 } from "./get-mcp-config";
-import type { McpConfig } from "../config";
+import type { McpConfig } from "../config-validation";
 
 const minimalConfig: McpConfig = {
   mcpServers: {
@@ -30,11 +30,11 @@ describe("getConfigFromPath", () => {
     await Bun.write(path, JSON.stringify(minimalConfig));
     try {
       const config = await getConfigFromPath(path);
-      expect(config?.mcpServers).toEqual(minimalConfig.mcpServers);
-      expect(config?.localAgent).toEqual(minimalConfig.localAgent);
-      expect(config?.remoteAgent).toEqual(minimalConfig.remoteAgent);
-      expect(config?.agentProvider).toBe(minimalConfig.agentProvider);
-      expect(config?.isChatEnabled).toBe(minimalConfig.isChatEnabled);
+      expect(config.mcpServers).toEqual(minimalConfig.mcpServers);
+      expect(config.localAgent).toEqual(minimalConfig.localAgent);
+      expect(config.remoteAgent).toEqual(minimalConfig.remoteAgent);
+      expect(config.agentProvider).toBe(minimalConfig.agentProvider);
+      expect(config.isChatEnabled).toBe(minimalConfig.isChatEnabled);
     } finally {
       await rm(path, { force: true });
     }

@@ -12,8 +12,8 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { Client } from "../client/client";
 import { LocalModel } from "../models/llm";
 import { GroqModel } from "../models/groq";
-import { getConfig, type Config } from "../lib/get-mcp-config";
-import type { McpConfig } from "../config";
+import { getConfig } from "../lib/get-mcp-config";
+import type { McpConfig } from "../config-validation";
 
 type ProviderOption = "local" | "remote";
 

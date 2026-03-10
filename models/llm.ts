@@ -1,12 +1,12 @@
 import { Ollama, type Message, type Tool } from "ollama";
-import { type LocalConfig } from "../lib/get-mcp-config";
 import { logLocalResponse } from "../lib/message-logger";
+import type { McpConfig } from "../config-validation";
 
 export class LocalModel {
-  private config: LocalConfig;
+  private config: McpConfig["localAgent"];
   private model: Ollama;
 
-  constructor(localConfig: LocalConfig) {
+  constructor(localConfig: McpConfig["localAgent"]) {
     this.config = localConfig;
     this.model = new Ollama(localConfig);
   }
@@ -30,5 +30,11 @@ export class LocalModel {
     });
     await logLocalResponse({ response });
     return response;
+  }
+
+  async setModel(modelId: string) {
+    this.config.modelId = modelId;
+    this.model.abort();
+    this.model = new Ollama(this.config);
   }
 }

@@ -1,16 +1,15 @@
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { Client } from "../client/client";
 import { log } from "@clack/prompts";
-import type { Config } from "./get-mcp-config";
 import {
   experimental_createMCPClient as createMCPClient,
   type experimental_MCPClient as MCPClient,
 } from "ai";
 import type { AllowedDirs } from "./get-dirs-from-args";
-import type { McpConfig } from "../config";
+import type { McpConfig } from "../config-validation";
 
-const FILESYSTEM_MCP = "filesystem";
-const UPLINK_MCP = "uplink";
+export const FILESYSTEM_MCP = "filesystem";
+export const UPLINK_MCP = "uplink";
 
 export type ToolType = Awaited<ReturnType<MCPClient["tools"]>>;
 
