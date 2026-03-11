@@ -9,7 +9,7 @@ export const mcpServerSchema = z.object({
   command: z.string().min(1, "Missing command to run the MCP server."),
   args: z.array(z.string()).min(1, "Missing MCP server arguments."),
   vargs: z.array(z.string()).describe("Additional arguments that the MCP server might need."),
-  env: z.record(z.string()).optional().describe("Environment variables needed by the MCP server, specified as key-value pairs."),
+  env: z.record(z.string(), z.string()).optional().describe("Environment variables needed by the MCP server, specified as key-value pairs."),
   roots: z.array(z.object({
     uri: z.string(),
     name: z.string()
@@ -22,16 +22,16 @@ export const agentSchema = z.object({
   models: z.array(z.string().min(1, "Missing a proper model name.")).describe("The list of available model identifiers that the agent can use.").min(1)
 });
 
-export const providersSchema = z.record(agentSchema);
+export const providersSchema = z.record(z.string(), agentSchema);
 
 export const configSchema = z.object({
-  mcpServers: z.record(mcpServerSchema),
+  mcpServers: z.record(z.string(), mcpServerSchema),
   providers: providersSchema,
   agentProvider: z.string(),
 }).superRefine((cfg, ctx) => {
   if (!(Object.hasOwn(cfg.providers, cfg.agentProvider))) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       path: ["agentProvider"],
       message: "agentProvider must be a key of providers"
     })
