@@ -28,7 +28,6 @@ export const configSchema = z.object({
   mcpServers: z.record(mcpServerSchema),
   providers: providersSchema,
   agentProvider: z.string(),
-  isChatEnabled: z.boolean()
 }).superRefine((cfg, ctx) => {
   if (!(Object.hasOwn(cfg.providers, cfg.agentProvider))) {
     ctx.addIssue({

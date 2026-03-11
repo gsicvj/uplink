@@ -85,8 +85,7 @@ describe("configSchema / validateMcpConfig", () => {
         models: ["llama3"],
       },
     },
-    agentProvider: "localAgent",
-    isChatEnabled: true,
+    agentProvider: "localAgent"
   } as const;
 
   test("validateMcpConfig parses a valid config", () => {

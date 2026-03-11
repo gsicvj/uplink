@@ -11,7 +11,7 @@ import type { SolveResult } from "./local-agent";
 import chalk from "chalk";
 import type { McpConfig } from "../config-validation";
 import { connectAISDKToMCPServers, type ToolType } from "../lib/connect-to-mcp-servers";
-import type { AllowedDirs } from "../lib/get-dirs-from-args";
+import type { AllowedDirs } from "../lib/evaluate-args";
 
 export class RemoteAgent {
   private agent: any | null = null;

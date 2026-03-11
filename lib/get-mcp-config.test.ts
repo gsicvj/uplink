@@ -9,7 +9,6 @@ describe("getConfig", () => {
       expect(config).toHaveProperty("mcpServers");
       expect(config).toHaveProperty("providers");
       expect(config).toHaveProperty("agentProvider");
-      expect(config).toHaveProperty("isChatEnabled");
       expect(typeof config.mcpServers).toBe("object");
       expect(typeof config.providers).toBe("object");
       const activeProvider = config.providers[config.agentProvider];
