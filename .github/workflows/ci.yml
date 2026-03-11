@@ -12,6 +12,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Prepare MCP config
+        run: |
+          if [ ! -f mcp-config.json ]; then
+            cp mcp-config.example.json mcp-config.json
+          fi
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
