@@ -8,7 +8,7 @@ mock.module("./ensure-dirs", () => ({
 
 describe("getDirsFromArgs", () => {
   test("returns empty local and remote when no args", async () => {
-    const { getDirsFromArgs } = await import("./get-dirs-from-args");
+    const { getDirsFromArgs } = await import("./evaluate-args");
     const result = await getDirsFromArgs([]);
     expect(result).toEqual({
       localDirs: [],
@@ -17,7 +17,7 @@ describe("getDirsFromArgs", () => {
   });
 
   test("parses --local followed by dirs", async () => {
-    const { getDirsFromArgs } = await import("./get-dirs-from-args");
+    const { getDirsFromArgs } = await import("./evaluate-args");
     const result = await getDirsFromArgs(["--local", "/tmp", "./src"]);
     expect(result).toEqual({
       localDirs: ["/tmp", "./src"],
@@ -26,7 +26,7 @@ describe("getDirsFromArgs", () => {
   });
 
   test("parses --remote followed by dirs", async () => {
-    const { getDirsFromArgs } = await import("./get-dirs-from-args");
+    const { getDirsFromArgs } = await import("./evaluate-args");
     const result = await getDirsFromArgs(["--remote", "/uploads", "public"]);
     expect(result).toEqual({
       localDirs: [],
@@ -35,7 +35,7 @@ describe("getDirsFromArgs", () => {
   });
 
   test("switches to remote after --remote", async () => {
-    const { getDirsFromArgs } = await import("./get-dirs-from-args");
+    const { getDirsFromArgs } = await import("./evaluate-args");
     const result = await getDirsFromArgs([
       "--local",
       "/tmp",
@@ -50,7 +50,7 @@ describe("getDirsFromArgs", () => {
   });
 
   test("switches back to local after --local", async () => {
-    const { getDirsFromArgs } = await import("./get-dirs-from-args");
+    const { getDirsFromArgs } = await import("./evaluate-args");
     const result = await getDirsFromArgs([
       "--remote",
       "/cloud",
@@ -65,7 +65,7 @@ describe("getDirsFromArgs", () => {
   });
 
   test("ignores args before any flag", async () => {
-    const { getDirsFromArgs } = await import("./get-dirs-from-args");
+    const { getDirsFromArgs } = await import("./evaluate-args");
     const result = await getDirsFromArgs([
       "bun",
       "run",
@@ -80,7 +80,7 @@ describe("getDirsFromArgs", () => {
   });
 
   test("both local and remote with multiple switches", async () => {
-    const { getDirsFromArgs } = await import("./get-dirs-from-args");
+    const { getDirsFromArgs } = await import("./evaluate-args");
     const result = await getDirsFromArgs([
       "--local",
       "a",
@@ -94,5 +94,44 @@ describe("getDirsFromArgs", () => {
       localDirs: ["a", "b", "c"],
       remoteDirs: ["x"],
     });
+  });
+});
+
+describe("getPromptFromArgs", () => {
+  test("returns null when no --prompt arg is present", async () => {
+    const { getPromptFromArgs } = await import("./evaluate-args");
+    const result = await getPromptFromArgs(["bun", "run", "host.ts"]);
+    expect(result).toBeNull();
+  });
+
+  test("returns the string following --prompt", async () => {
+    const { getPromptFromArgs } = await import("./evaluate-args");
+    const result = await getPromptFromArgs([
+      "bun",
+      "run",
+      "host.ts",
+      "--prompt",
+      "hello world",
+    ]);
+    expect(result).toBe("hello world");
+  });
+
+  test("works regardless of arg order", async () => {
+    const { getPromptFromArgs } = await import("./evaluate-args");
+    const result = await getPromptFromArgs([
+      "--local",
+      "foo/",
+      "--prompt",
+      "upload files",
+      "--remote",
+      "/",
+    ]);
+    expect(result).toBe("upload files");
+  });
+
+  test("returns null when --prompt has no following value", async () => {
+    const { getPromptFromArgs } = await import("./evaluate-args");
+    const result = await getPromptFromArgs(["bun", "run", "host.ts", "--prompt"]);
+    expect(result).toBeNull();
   });
 });

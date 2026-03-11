@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { getClientArgs } from "./connect-to-mcp-servers";
-import type { AllowedDirs } from "./get-dirs-from-args";
+import type { AllowedDirs } from "./evaluate-args";
 
 describe("getClientArgs", () => {
   const baseArgs = ["--some", "arg"];

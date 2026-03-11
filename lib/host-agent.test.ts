@@ -1,17 +1,17 @@
 import { describe, expect, mock, test } from "bun:test";
 import { connectAgentServer, initAgent } from "./host-agent";
 import type { McpConfig } from "../config-validation";
-import type { AllowedDirs } from "./get-dirs-from-args";
+import type { AllowedDirs } from "./evaluate-args";
 
 const connectRemoteMock = mock(async (_dirs: AllowedDirs) => ({
   tools: [],
-  disconnect: mock(async () => {}),
+  disconnect: mock(async () => { }),
   toolMap: new Map(),
 }));
 
 const connectLocalMock = mock(async (_dirs: AllowedDirs) => ({
   tools: [],
-  disconnect: mock(async () => {}),
+  disconnect: mock(async () => { }),
   toolMap: new Map(),
 }));
 
