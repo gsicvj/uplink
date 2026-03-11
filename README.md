@@ -6,7 +6,7 @@ Uplink is a lightweight open-source tool that fuses local filesystem management 
 
 Runs entirely in the terminal: browse, organise, edit and create files, or upload them to a cloud provider while steering the workflow with natural-language instructions.
 
-By default the agentic loop stays open (`isChatEnabled` defaults to `true`): the AI keeps accepting new prompts until you type `bye`, chaining tool calls between questions. Set `isChatEnabled` to `false` for single-run mode, where the agent takes your prompt, calls MCP tools until it reaches a solution, responds, and exits.
+By default the agentic loop stays open: the AI keeps accepting new prompts until you type `/bye`, chaining tool calls between questions. Passing `--local` / `--remote` directory arguments only changes which folders the agent can touch—it still runs in interactive chat mode. For single-run mode, start the host with a one-off `--prompt` argument (for example `bun run host.ts --prompt "summarise README.md"`); the host will run the tools it needs, respond once, and exit.
 
 [CI](https://github.com/gsicvj/uplink/actions/workflows/ci.yml)
 [codecov](https://codecov.io/gh/gsicvj/uplink)
@@ -47,12 +47,12 @@ Assistant: You’re welcome! The file is now safely stored in the cloud.
     "filesystem": {
       "command": "bunx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem"],
-      "vargs": []
+      "vargs": ["relative-to-project-root/", "/or/absolute/path"]
     },
     "uplink": {
       "command": "bun",
       "args": ["run", "servers/cdn/uplink-server.ts"],
-      "vargs": []
+      "vargs": ["/", "other/nested/paths/"]
     }
   },
   "providers": {
@@ -67,8 +67,7 @@ Assistant: You’re welcome! The file is now safely stored in the cloud.
       "models": ["openai/gpt-oss-20b"]
     }
   },
-  "agentProvider": "remoteAgent",
-  "isChatEnabled": true
+  "agentProvider": "remoteAgent"
 }
 ```
 
@@ -83,26 +82,26 @@ The `providers` map defines all available agents and their models. Set `agentPro
 
 ## TODO
 
-- Merge ollama and uplink docker stages into a single stage
-- Update UX with external CLI libraries (@clack/prompt and @chalk)
-- Use input arguments for run startup commands
-- Add .env.example to simplify setting environment variables
-- Fix new setup where ENOENT: no such file or directory, open 'logging/local.log'
-- Move allowed dirs from mcp-config to host app args
-- Enable tool toogle or multiple select for allowed/banned
-- Provide script argument for local/remote model
-- Implement in-app model selection
-- Implement in-app provider selection
-- Implement in-app allowed directories selection
-- Use MCP to handle roots change instead of restarting agent on dirs change
-- Add unit high and medium value tests
-- Simplify config and Zod schemas
-- Enter chat mode when no args are provided, remove isChatEnabled flag
-- Implement terminal history
-- Create a user flow, ask what would a user want, and refactor where valuable
-- Treat local agent as Ollama Custom Provider
-- Simplify agents by merging Local and Remote Agent
-- Train and use a smaller domain specific model
+- [ ] Merge ollama and uplink docker stages into a single stage
+- [x] Update UX with external CLI libraries (@clack/prompt and @chalk)
+- [x] Use input arguments for run startup commands
+- [x] Add .env.example to simplify setting environment variables
+- [x] Fix new setup where ENOENT: no such file or directory, open 'logging/local.log'
+- [x] Move allowed dirs from mcp-config to host app args
+- [x] Implement in-app model selection
+- [x] Implement in-app provider selection
+- [x] Implement in-app allowed directories selection
+- [x] Add unit high and medium value tests
+- [x] Simplify config and Zod schemas
+- [x] Enter chat mode when no --prompt arg is provided
+- [ ] Enable tool toogle or multiple select for allowed/banned
+- [ ] Use MCP to handle roots change instead of restarting agent on dirs change
+- [ ] Create a user flow, ask what would a user want, and refactor where valuable
+- [ ] Treat local agent as Ollama Custom Provider
+- [ ] Simplify agents by merging Local and Remote Agent
+- [ ] Implement terminal history
+- [ ] Provide script argument for local/remote model
+- [ ] Train and use a smaller domain specific model
 
 ## License
 

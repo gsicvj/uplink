@@ -23,6 +23,5 @@
       "models": ["openai/gpt-oss-20b"]
     }
   },
-  "agentProvider": "remoteAgent",
-  "isChatEnabled": true
+  "agentProvider": "remoteAgent"
 }
