@@ -1,5 +1,5 @@
 import * as BunnyStorageSDK from "@bunny.net/storage-sdk";
-import { env } from "../../env";
+import { env } from "./env";
 import { type FileObject } from "./tools";
 
 // Singleton storage zone instance

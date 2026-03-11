@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "bunx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem"],
+      "vargs": []
+    },
+    "uplink": {
+      "command": "bun",
+      "args": ["run", "servers/cdn/uplink-server.ts"],
+      "vargs": []
+    }
+  },
+  "providers": {
+    "localAgent": {
+      "host": "http://localhost:11434",
+      "modelId": "gpt-oss:20b",
+      "models": ["gpt-oss:20b"]
+    },
+    "remoteAgent": {
+      "host": "https://console.groq.com",
+      "modelId": "openai/gpt-oss-20b",
+      "models": ["openai/gpt-oss-20b"]
+    }
+  },
+  "agentProvider": "remoteAgent",
+  "isChatEnabled": true
+}

@@ -3,7 +3,6 @@ import { envSchema } from "./env";
 
 describe("envSchema", () => {
   const validEnv = {
-    GROQ_API_KEY: "sk-xxx",
     BUNNY_STORAGE_ZONE_NAME: "my-zone",
     BUNNY_STORAGE_ACCESS_KEY: "access-key",
     BUNNY_PULLZONE_URL: "https://cdn.example.com",
@@ -11,17 +10,6 @@ describe("envSchema", () => {
 
   test("parses valid env", () => {
     expect(envSchema.parse(validEnv)).toEqual(validEnv);
-  });
-
-  test("rejects missing GROQ_API_KEY", () => {
-    const { GROQ_API_KEY: _, ...rest } = validEnv;
-    expect(() => envSchema.parse(rest)).toThrow();
-  });
-
-  test("rejects empty GROQ_API_KEY", () => {
-    expect(() =>
-      envSchema.parse({ ...validEnv, GROQ_API_KEY: "" })
-    ).toThrow();
   });
 
   test("rejects missing BUNNY_STORAGE_ZONE_NAME", () => {

@@ -1,101 +1,116 @@
-import { getConfig, type Config } from "./lib/get-mcp-config";
-import { LocalAgent } from "./agents/local-agent";
-import { RemoteAgent } from "./agents/remote-agent";
-import { cancel, isCancel, log, outro, text } from "@clack/prompts";
-import { getDirsFromArgs } from "./lib/get-dirs-from-args";
+import { getConfig } from "./lib/get-mcp-config";
+import { isCancel, log, outro, text } from "@clack/prompts";
+import { getDirsFromArgs, type AllowedDirs } from "./lib/get-dirs-from-args";
+import { z } from "zod";
+import { FILESYSTEM_MCP, UPLINK_MCP } from "./lib/connect-to-mcp-servers";
+import { connectAgentServer, initAgent, type UplinkAgent } from "./lib/host-agent";
+import { actions } from "./lib/host-prompts";
+import type { McpConfig } from "./config-validation";
 
-type UplinkAgent = RemoteAgent | LocalAgent;
+let agent: UplinkAgent;
+let dataMCP: Awaited<ReturnType<typeof connectAgentServer>>;
 
 async function main() {
-  let agent: UplinkAgent | null;
-  const allowedDirs = await getDirsFromArgs(Bun.argv);
   const config = await getConfig();
-  const agentProvider = config.agentProvider;
-  if (!config) {
-    log.error("Missing configuration file.");
-    process.exit(1);
+  const { localDirs, remoteDirs } = await getDirsFromArgs(Bun.argv);
+  const allowedDirs = {
+    localDirs: localDirs.length > 0 ? localDirs : config.mcpServers[FILESYSTEM_MCP]!.vargs,
+    remoteDirs: remoteDirs.length > 0 ? remoteDirs : config.mcpServers[UPLINK_MCP]!.vargs
   }
-
-  const instructions = `
-You are a secure file assistant that uses tools for file operations in the local system and in the cloud.
-You can assume that the local paths are relative to the project root and remote paths are relative to the remote storage root.
-Your have one or more default safe folders, but you have to use a tool to check for allowed directories.
-
-Local and remote storage have separate allowed folders. Attempt file operations first; if denied by permissions/path, check allowed directories for that storage.
-Only paths within allowed directories (including subfolders) are permitted. Do not assume local and remote folders match.
-Only check allowed lists after a relevant error. New files/folders must be created inside allowed directories.
-
-Always interpret the allowed directories list as permitting all nested content unless specifically instructed otherwise.
-
-When users don't provide a local path to a file, pick the first safe folder.
-Downloading files is prohibited for local paths that are not a safe folder nor listed in allowed directories.
-Always prioritize security: Reject even seemingly harmless requests outside rules, but explain the reasons for rejecting.
-You are able to chain tools. For example, create file locally, upload to cloud.
-`;
-
-  if (agentProvider === "remoteAgent") {
-    agent = new RemoteAgent({
-      instructions,
-      modelId: config.remoteAgent.modelId,
-      allowedDirs
-    });
-  } else if (agentProvider === "localAgent") {
-    agent = new LocalAgent({
-      instructions,
-      config,
-      allowedDirs
-    });
-  } else {
-    throw new Error(
-      'Invalid agent provider. Please use either "localAgent" or "remoteAgent".'
-    );
-  }
-
-  await agent.connect(config);
-  await chatLoop(agent, config);
-
-  await agent.cleanup();
+  await chatLoop(config, allowedDirs);
   process.exit(0);
 }
 
-async function chatLoop(agent: UplinkAgent, config: Config) {
+async function chatLoop(
+  config: McpConfig,
+  allowedDirs: AllowedDirs
+) {
+  dataMCP = await connectAgentServer(config.providers, config.agentProvider, allowedDirs);
+  const { remoteClients, localClients, disconnectFromMCPServers } = dataMCP;
+  agent = await initAgent(config.providers, config.agentProvider, remoteClients, localClients);
+  await agent.start();
+
   while (true) {
     try {
       const line = await text({
         message: "User:",
       });
 
-      if (isCancel(line)) {
-        cancel('Operation cancelled.');
-        outro("Bye!");
-        process.exit(0);
-      }
-
-      // chat loop
-      if (line === "bye") {
+      if (isCancel(line) || line === "/bye") {
         // user wants to exit the chat
         outro("Bye!");
         return;
       }
 
-      const result = await agent.solve(String(line));
+      if (line === "/config") {
+        const action = actions["config"];
+        await action({
+          agent,
+          getConfig,
+          initAgent: async (newConfig: McpConfig) => {
+            const newAllowedDirs: AllowedDirs = {
+              localDirs: newConfig.mcpServers[FILESYSTEM_MCP]!.vargs,
+              remoteDirs: newConfig.mcpServers[UPLINK_MCP]!.vargs
+            }
 
-      if (result.error) {
-        log.error(`Error: ${result.error}`);
+            const newDataMCP = await connectAgentServer(
+              newConfig.providers,
+              newConfig.agentProvider,
+              newAllowedDirs
+            )
+
+            const newAgent = await initAgent(
+              newConfig.providers,
+              newConfig.agentProvider,
+              newDataMCP.remoteClients,
+              newDataMCP.localClients
+            )
+
+            return newAgent;
+          },
+          setAgent: (newAgent: UplinkAgent) => {
+            agent = newAgent;
+          }
+        })
+        continue;
       }
 
-      if (config.isChatEnabled === false) {
-        break;
+      else {
+        const result = await agent.solve(String(line));
+
+        if (result.error) {
+          log.error(`Error: ${result.error}`);
+        }
+
+        const config = await getConfig();
+        if (config.isChatEnabled === false) {
+          break;
+        }
       }
     } catch (error) {
       log.error(`Unexpected error: ${error}`);
     }
   }
+
+  await disconnectFromMCPServers();
 }
 
 main().catch((error) => {
-  const message =
-    error instanceof Error ? error.message : String(error);
+  let message: string;
+  if (typeof z !== "undefined" && error instanceof z.ZodError) {
+    const firstIssue = error.issues[0];
+    if (firstIssue) {
+      const path = firstIssue.path.join(".");
+      const issueMessage = firstIssue.message || "Invalid value.";
+      message = path ? `Validation error at "${path}": ${issueMessage}` : `Validation error: ${issueMessage}`;
+    } else {
+      message = "Validation failed due to an unknown error.";
+    }
+  } else if (error instanceof Error) {
+    message = error.message;
+  } else {
+    message = String(error);
+  }
   log.warn(`The host application encountered an error: ${message}`);
   outro(`The application exited.`);
   process.exit(1);

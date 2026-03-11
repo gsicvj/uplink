@@ -12,7 +12,8 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { Client } from "../client/client";
 import { LocalModel } from "../models/llm";
 import { GroqModel } from "../models/groq";
-import { getConfig, type Config } from "../lib/get-mcp-config";
+import { getConfig } from "../lib/get-mcp-config";
+import type { McpConfig } from "../config-validation";
 
 type ProviderOption = "local" | "remote";
 
@@ -137,7 +138,7 @@ async function main() {
   });
 }
 
-function parseOptions(config: Config): BenchmarkOptions {
+function parseOptions(config: McpConfig): BenchmarkOptions {
   const args = Bun.argv.slice(2);
 
   const providersArg =
@@ -162,9 +163,9 @@ function parseOptions(config: Config): BenchmarkOptions {
     getArgValue(args, "--tool-counts") ?? getArgValue(args, "--tool-count");
   const toolCounts = toolCountsArg
     ? toolCountsArg
-        .split(",")
-        .map((value) => Number(value.trim()))
-        .filter((value) => Number.isFinite(value) && value > 0)
+      .split(",")
+      .map((value) => Number(value.trim()))
+      .filter((value) => Number.isFinite(value) && value > 0)
     : DEFAULT_TOOL_COUNTS;
   if (toolCounts.length === 0) {
     throw new Error("No valid tool counts provided.");
@@ -214,7 +215,7 @@ async function runLocalBenchmark({
   toolCounts,
   samples,
 }: {
-  config: Config;
+  config: McpConfig;
   toolCounts: number[];
   samples: number;
 }): Promise<ProviderSummary> {
@@ -253,8 +254,7 @@ async function runLocalBenchmark({
     for (let index = 0; index < samples; index++) {
       try {
         console.log(
-          `[Local] Running sample ${
-            index + 1
+          `[Local] Running sample ${index + 1
           }/${samples} for ${toolCount} tools...`
         );
         const sample = await runLocalSample({
@@ -264,8 +264,7 @@ async function runLocalBenchmark({
         });
         samplesForCount.push({ ...sample, sampleIndex: index + 1 });
         console.log(
-          `[Local] Completed sample ${index + 1}/${samples} (wall: ${
-            sample.wallTimeSeconds
+          `[Local] Completed sample ${index + 1}/${samples} (wall: ${sample.wallTimeSeconds
           }s)`
         );
       } catch (error) {
@@ -304,7 +303,7 @@ async function runRemoteBenchmark({
   toolCounts,
   samples,
 }: {
-  config: Config;
+  config: McpConfig;
   toolCounts: number[];
   samples: number;
 }): Promise<ProviderSummary> {
@@ -343,8 +342,7 @@ async function runRemoteBenchmark({
     for (let index = 0; index < samples; index++) {
       try {
         console.log(
-          `[Remote] Running sample ${
-            index + 1
+          `[Remote] Running sample ${index + 1
           }/${samples} for ${toolCount} tools...`
         );
         const sample = await runRemoteSample({
@@ -354,8 +352,7 @@ async function runRemoteBenchmark({
         });
         samplesForCount.push({ ...sample, sampleIndex: index + 1 });
         console.log(
-          `[Remote] Completed sample ${index + 1}/${samples} (wall: ${
-            sample.wallTimeSeconds
+          `[Remote] Completed sample ${index + 1}/${samples} (wall: ${sample.wallTimeSeconds
           }s)`
         );
       } catch (error) {
@@ -654,8 +651,7 @@ function renderTextSummary(summaries: ProviderSummary[], prompts: string[]) {
         toolSummary.averageOutputTokens !== null
       ) {
         console.log(
-          `    avg tokens: input=${
-            toolSummary.averageInputTokens ?? "n/a"
+          `    avg tokens: input=${toolSummary.averageInputTokens ?? "n/a"
           }, output=${toolSummary.averageOutputTokens ?? "n/a"}`
         );
       }

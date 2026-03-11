@@ -20,21 +20,6 @@ export class Client {
       {
         name: `ollama-client-${serverName}`,
         version: "1.0.0",
-      },
-      {
-        capabilities: {
-          tools: {
-            call: {
-              listChanged: true,
-            },
-            list: {
-              listChanged: true,
-            },
-          },
-          resources: {
-            listChanged: true,
-          },
-        },
       }
     );
 

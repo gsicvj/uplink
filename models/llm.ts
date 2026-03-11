@@ -1,12 +1,12 @@
 import { Ollama, type Message, type Tool } from "ollama";
-import { type LocalConfig } from "../lib/get-mcp-config";
 import { logLocalResponse } from "../lib/message-logger";
+import type { McpConfig } from "../config-validation";
 
 export class LocalModel {
-  private config: LocalConfig;
+  private config: McpConfig["providers"][string];
   private model: Ollama;
 
-  constructor(localConfig: LocalConfig) {
+  constructor(localConfig: McpConfig["providers"][string]) {
     this.config = localConfig;
     this.model = new Ollama(localConfig);
   }
@@ -21,14 +21,19 @@ export class LocalModel {
     const response = await this.model.chat({
       model: this.config.modelId,
       messages,
-      tools,
-      // think: "low", // !!!!! gpt-oss supports this, llama3.1 throws
-      // format: zodToJsonSchema(FormatSchema),
-      // options: {
-      //   temperature: 0,
-      // },
+      tools
     });
     await logLocalResponse({ response });
     return response;
+  }
+
+  cancel() {
+    this.model?.abort();
+  }
+
+  async setModel(modelId: string) {
+    // Recreate Ollama Instance with new modelId
+    this.config.modelId = modelId;
+    this.model = new Ollama(this.config);
   }
 }

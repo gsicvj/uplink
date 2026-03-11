@@ -6,8 +6,10 @@ import { LocalAgent } from "../agents/local-agent";
 import { RemoteAgent } from "../agents/remote-agent";
 import { BunnyNetApi } from "../servers/cdn/bunnynet";
 import type { IBunnyNetAPIInterface } from "../servers/cdn/bunnynet";
-import { getConfig, type Config } from "../lib/get-mcp-config";
+import { getConfig } from "../lib/get-mcp-config";
 import type { file as BunnyFileNamespace } from "@bunny.net/storage-sdk";
+import type { McpConfig } from "../config-validation";
+import type { UplinkAgent } from "../lib/host-agent";
 
 const PROMPT = "Generate 2 facts about oranges and upload as oranges.txt.";
 const DEFAULT_ITERATIONS = 5;
@@ -32,7 +34,6 @@ You are able to chain tools. For example, create file locally, upload to cloud.
 `;
 
 type StorageFile = BunnyFileNamespace.StorageFile;
-type UplinkAgent = LocalAgent | RemoteAgent;
 type AgentProvider = "localAgent" | "remoteAgent";
 
 interface BenchmarkOptions {
@@ -115,7 +116,7 @@ async function main() {
     let solveError: string | null = null;
 
     try {
-      await agent.connect(config);
+      await agent.connect();
       const result = await agent.solve(options.prompt);
       solveContent = result.content;
       solveError = result.error;
@@ -267,7 +268,7 @@ function getArgValue(args: string[], key: string): string | undefined {
   return undefined;
 }
 
-function resolveAssetsDirectory(config: Config): string {
+function resolveAssetsDirectory(config: McpConfig): string {
   const filesystemServer = config.mcpServers["filesystem"];
   if (!filesystemServer) {
     throw new Error("Filesystem MCP server not configured in mcp-config.json");
@@ -290,7 +291,7 @@ function resolveAssetsDirectory(config: Config): string {
   return assetsPath;
 }
 
-function createAgent(config: Config): {
+function createAgent(config: McpConfig): {
   agent: UplinkAgent;
   provider: AgentProvider;
   modelId: string;
