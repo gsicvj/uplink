@@ -1,4 +1,4 @@
-![Uplink](./static/uplink-logo.svg)
+Uplink
 
 # Uplink – local & remote friendly AI-powered agent
 
@@ -8,9 +8,9 @@ Runs entirely in the terminal: browse, organise, edit and create files, or uploa
 
 By default the agentic loop stays open (`isChatEnabled` defaults to `true`): the AI keeps accepting new prompts until you type `bye`, chaining tool calls between questions. Set `isChatEnabled` to `false` for single-run mode, where the agent takes your prompt, calls MCP tools until it reaches a solution, responds, and exits.
 
-[![CI](https://github.com/gsicvj/uplink/actions/workflows/ci.yml/badge.svg)](https://github.com/gsicvj/uplink/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/gsicvj/uplink/graph/badge.svg)](https://codecov.io/gh/gsicvj/uplink)
-[![license](https://img.shields.io/badge/license-[MIT]-blue.svg)](LICENSE)
+[CI](https://github.com/gsicvj/uplink/actions/workflows/ci.yml)
+[codecov](https://codecov.io/gh/gsicvj/uplink)
+[license](LICENSE)
 
 ## Key Features
 
@@ -27,20 +27,16 @@ The project ships with a focused set of integrations and connectors:
 
 See `SETUP.md` for the full quick-start guide, environment variable expectations, configuration tips, and troubleshooting steps. It covers installing Bun and dependencies, copying `.env.example` to `.env`, configuring `mcp-config.json`, and running the host. Pass allowed directories as host arguments: `--local` for filesystem directories and `--remote` for uplink (CDN) directories—e.g. `bun run host.ts --local assets downloads --remote /`.
 
-Example of a successful prompt when running a local model:
+### Example of a successful prompt when running a local model:
 
 ```text
-User:
-Upload 3 facts about life
+User: Upload 3 facts about life.
+Assistant: Step 1 – Check the allowed local directories.
+Assistant: Step 2 – Write a new file (`downloads/life_facts.txt`) with the three facts.
+Assistant: Step 3 – Upload that local file to the cloud storage as `life_facts.txt`.
 
-Assistant:
-Allowed directories: /absolute/path/uplink/assets
-
-Assistant:
-Successfully wrote to /absolute/path/uplink/assets/sun_facts.txt
-
-Assistant:
-The file **sun_facts.txt** containing three facts about the Sun has been uploaded to the cloud.
+User: Great, thanks!
+Assistant: You’re welcome! The file is now safely stored in the cloud.
 ```
 
 ### Example `mcp-config.json`
@@ -50,27 +46,33 @@ The file **sun_facts.txt** containing three facts about the Sun has been uploade
   "mcpServers": {
     "filesystem": {
       "command": "bunx",
-      "args": ["@modelcontextprotocol/server-filesystem"]
+      "args": ["-y", "@modelcontextprotocol/server-filesystem"],
+      "vargs": []
     },
     "uplink": {
       "command": "bun",
-      "args": ["run", "servers/cdn/uplink-server.ts"]
+      "args": ["run", "servers/cdn/uplink-server.ts"],
+      "vargs": []
     }
   },
-  "localAgent": {
-    "host": "http://localhost:11434",
-    "modelId": "gpt-oss:20b"
+  "providers": {
+    "localAgent": {
+      "host": "http://localhost:11434",
+      "modelId": "gpt-oss:20b",
+      "models": ["gpt-oss:20b"]
+    },
+    "remoteAgent": {
+      "host": "https://console.groq.com",
+      "modelId": "openai/gpt-oss-20b",
+      "models": ["openai/gpt-oss-20b"]
+    }
   },
-  "remoteAgent": {
-    "host": "https://console.groq.com",
-    "modelId": "openai/gpt-oss-20b"
-  },
-  "agentProvider": "localAgent",
+  "agentProvider": "remoteAgent",
   "isChatEnabled": true
 }
 ```
 
-Set `agentProvider` to `remoteAgent` or `localAgent` depending on which provider you want to use by default. Both agents can still be selected dynamically within the host application.
+The `providers` map defines all available agents and their models. Set `agentProvider` to one of those provider keys (for example `remoteAgent` or `localAgent`) to choose the default; the active agent and model can still be changed dynamically within the host application. The `vargs` arrays on each MCP server are populated at runtime with the allowed directories you select from the CLI.
 
 ## Safety & Risk Disclosure (Use at Your Own Risk)
 
@@ -81,26 +83,26 @@ Set `agentProvider` to `remoteAgent` or `localAgent` depending on which provider
 
 ## TODO
 
-- [ ] Merge ollama and uplink docker stages into a single stage
-- [x] Update UX with external CLI libraries (@clack/prompt and @chalk)
-- [x] Use input arguments for run startup commands
-- [x] Add .env.example to simplify setting environment variables
-- [x] Fix new setup where ENOENT: no such file or directory, open 'logging/local.log'
-- [x] Move allowed dirs from mcp-config to host app args
-- [ ] Enable tool toogle or multiple select for allowed/banned
-- [ ] Provide script argument for local/remote model
-- [x] Implement in-app model selection
-- [x] Implement in-app provider selection
-- [x] Implement in-app allowed directories selection
-- [ ] Use MCP to handle roots change instead of restarting agent on dirs change
-- [x] Add unit high and medium value tests
-- [x] Simplify config and Zod schemas
-- [ ] Enter chat mode when no args are provided, remove isChatEnabled flag
-- [ ] Implement terminal history
-- [ ] Create a user flow, ask what would a user want, and refactor where valuable
-- [ ] Treat local agent as Ollama Custom Provider
-- [ ] Simplify agents by merging Local and Remote Agent
-- [ ] Train and use a smaller domain specific model
+- Merge ollama and uplink docker stages into a single stage
+- Update UX with external CLI libraries (@clack/prompt and @chalk)
+- Use input arguments for run startup commands
+- Add .env.example to simplify setting environment variables
+- Fix new setup where ENOENT: no such file or directory, open 'logging/local.log'
+- Move allowed dirs from mcp-config to host app args
+- Enable tool toogle or multiple select for allowed/banned
+- Provide script argument for local/remote model
+- Implement in-app model selection
+- Implement in-app provider selection
+- Implement in-app allowed directories selection
+- Use MCP to handle roots change instead of restarting agent on dirs change
+- Add unit high and medium value tests
+- Simplify config and Zod schemas
+- Enter chat mode when no args are provided, remove isChatEnabled flag
+- Implement terminal history
+- Create a user flow, ask what would a user want, and refactor where valuable
+- Treat local agent as Ollama Custom Provider
+- Simplify agents by merging Local and Remote Agent
+- Train and use a smaller domain specific model
 
 ## License
 
