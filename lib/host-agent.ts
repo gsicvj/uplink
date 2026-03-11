@@ -2,7 +2,7 @@ import { LocalAgent } from "../agents/local-agent";
 import { RemoteAgent } from "../agents/remote-agent";
 import type { McpConfig, ProviderOption } from "../config-validation";
 import { HOST_INSTRUCTIONS } from "../host-instructions";
-import type { AllowedDirs } from "./get-dirs-from-args";
+import type { AllowedDirs } from "./evaluate-args";
 
 export type UplinkAgent = RemoteAgent | LocalAgent;
 

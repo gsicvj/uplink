@@ -6,7 +6,7 @@ import { logLocalResponse } from "../lib/message-logger";
 import { LocalModel } from "../models/llm";
 import type { Message, Tool, ToolCall, ChatResponse } from "ollama";
 import type { McpConfig } from "../config-validation";
-import type { AllowedDirs } from "../lib/get-dirs-from-args";
+import type { AllowedDirs } from "../lib/evaluate-args";
 import { connectToMCPServers } from "../lib/connect-to-mcp-servers";
 import { coolDownModel, warmUpModel } from "../lib/ollama-models";
 

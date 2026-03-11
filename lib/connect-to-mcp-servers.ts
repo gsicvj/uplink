@@ -5,7 +5,7 @@ import {
   experimental_createMCPClient as createMCPClient,
   type experimental_MCPClient as MCPClient,
 } from "ai";
-import type { AllowedDirs } from "./get-dirs-from-args";
+import type { AllowedDirs } from "./evaluate-args";
 import { getConfig } from "./get-mcp-config";
 
 export const FILESYSTEM_MCP = "filesystem";
