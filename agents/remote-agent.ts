@@ -1,12 +1,13 @@
 import {
-  Experimental_Agent as Agent,
+  ToolLoopAgent,
   type ModelMessage,
-  type experimental_MCPClient as MCPClient,
   stepCountIs,
 } from "ai";
+
+import { groq, type GroqLanguageModelOptions } from '@ai-sdk/groq';
+
 import { log, spinner } from "@clack/prompts";
 import { logRemoteResponse } from "../lib/message-logger";
-import { groq } from "@ai-sdk/groq";
 import type { SolveResult } from "./local-agent";
 import chalk from "chalk";
 import type { McpConfig } from "../config-validation";
@@ -14,7 +15,7 @@ import { connectAISDKToMCPServers, type ToolType } from "../lib/connect-to-mcp-s
 import type { AllowedDirs } from "../lib/evaluate-args";
 
 export class RemoteAgent {
-  private agent: any | null = null;
+  private agent: ToolLoopAgent | null = null;
   private messages: ModelMessage[] = [];
   private tools: ToolType;
   private instructions: string;
@@ -42,12 +43,19 @@ export class RemoteAgent {
   async start() {
     const startTime = performance.now();
     try {
-      this.agent = new Agent({
+      this.agent = new ToolLoopAgent({
         model: groq(this.config.modelId),
-        system: this.instructions,
+        instructions: this.instructions,
         tools: this.tools,
         stopWhen: stepCountIs(10),
+        providerOptions: {
+          groq: {
+            reasoningFormat: 'parsed',
+            reasoningEffort: 'medium',
+          } satisfies GroqLanguageModelOptions,
+        },
       });
+
       const connectTime = +((performance.now() - startTime) / 1000).toFixed(2);
       await logRemoteResponse({
         init: {
@@ -82,7 +90,7 @@ export class RemoteAgent {
         - Decides when to call tools vs respond
         - Manages multiple iterations internally
       */
-      const response = await this.agent.generate({
+      const response = await this.agent!.generate({
         messages: this.messages,
       });
       // respond and save context
@@ -105,7 +113,7 @@ export class RemoteAgent {
       const error =
         response.finishReason === "error"
           ? "Agent encountered an error"
-          : response.finishReason === "step-limit"
+          : response.finishReason === "other"
             ? "Max iterations reached"
             : null;
 

@@ -94,7 +94,8 @@ The `providers` map defines all available agents and their models. Set `agentPro
 - [x] Add unit high and medium value tests
 - [x] Simplify config and Zod schemas
 - [x] Enter chat mode when no --prompt arg is provided
-- [ ] Enable tool toogle or multiple select for allowed/banned
+- [x] Update dependencies to latest and greatest
+- [ ] Enable tool toogle or multiple select for allowed/banned (ai sdk has activeTools prop)
 - [ ] Use MCP to handle roots change instead of restarting agent on dirs change
 - [ ] Create a user flow, ask what would a user want, and refactor where valuable
 - [ ] Treat local agent as Ollama Custom Provider

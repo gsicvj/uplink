@@ -1,10 +1,7 @@
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { Client } from "../client/client";
 import { log } from "@clack/prompts";
-import {
-  experimental_createMCPClient as createMCPClient,
-  type experimental_MCPClient as MCPClient,
-} from "ai";
+import { createMCPClient, type MCPClient } from "@ai-sdk/mcp";
 import type { AllowedDirs } from "./evaluate-args";
 import { getConfig } from "./get-mcp-config";
 

@@ -56,12 +56,12 @@ describe("connectAgentServer", () => {
     remoteAgent: {
       host: "http://remote",
       models: ["remote-model"],
-      defaultModelId: "remote-model",
+      modelId: "remote-model",
     },
     localAgent: {
       host: "http://local",
       models: ["local-model"],
-      defaultModelId: "local-model",
+      modelId: "local-model",
     },
   };
   const dirs: AllowedDirs = { localDirs: ["/tmp"], remoteDirs: ["/cloud"] };
@@ -94,12 +94,12 @@ describe("initAgent", () => {
     remoteAgent: {
       host: "http://remote",
       models: ["remote-model"],
-      defaultModelId: "remote-model",
+      modelId: "remote-model",
     },
     localAgent: {
       host: "http://local",
       models: ["local-model"],
-      defaultModelId: "local-model",
+      modelId: "local-model",
     },
   };
 
