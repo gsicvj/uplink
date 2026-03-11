@@ -1,10 +1,11 @@
 import { log } from "@clack/prompts";
 import { rename } from 'node:fs/promises';
 import { validateMcpConfig, type AgentConfig, type McpConfig, type McpServerConfig, type ProviderOption, type Providers } from "../config-validation";
-import { FILESYSTEM_MCP, UPLINK_MCP } from "../lib/connect-to-mcp-servers";
 
 const MCP_CONFIG_PATH = "mcp-config.json";
 const TEMP_MCP_CONFIG_PATH = `temp-${MCP_CONFIG_PATH}`;
+
+type ServerName = "filesystem" | "uplink";
 
 let config: McpConfig | null = null;
 let configInFlight: Promise<McpConfig> | null = null;
@@ -35,24 +36,23 @@ export async function getConfigFromPath(path: string, tempPath: string) {
   }
 }
 
-export const getConfig = async () => {
+export async function getConfig() {
   if (config !== null) {
     return structuredClone(config);
   }
   if (configInFlight) return configInFlight;
-  configInFlight =
-    getConfigFromPath(MCP_CONFIG_PATH, TEMP_MCP_CONFIG_PATH)
-      .then(newConfig => {
-        config = structuredClone(newConfig);
-        return structuredClone(newConfig);
-      })
-      .finally(() => {
-        configInFlight = null;
-      })
+  configInFlight = getConfigFromPath(MCP_CONFIG_PATH, TEMP_MCP_CONFIG_PATH)
+    .then((newConfig) => {
+      config = structuredClone(newConfig);
+      return structuredClone(newConfig);
+    })
+    .finally(() => {
+      configInFlight = null;
+    });
   return configInFlight;
-};
+}
 
-const updateConfig = async (updated: McpConfig) => {
+async function updateConfig(updated: McpConfig) {
   try {
     const validated = validateMcpConfig(updated);
     const stringifiedConfig = JSON.stringify(validated, null, 2);
@@ -68,7 +68,10 @@ const updateConfig = async (updated: McpConfig) => {
   }
 }
 
-export const configureDirectories = (serverName: typeof FILESYSTEM_MCP | typeof UPLINK_MCP, dirs: string[]) => {
+export async function configureDirectories(
+  serverName: ServerName,
+  dirs: string[],
+) {
   const updatedServer = {
     ...config!.mcpServers[serverName],
     vargs: dirs,
@@ -80,27 +83,27 @@ export const configureDirectories = (serverName: typeof FILESYSTEM_MCP | typeof 
       ...config!.mcpServers,
       [serverName]: updatedServer
     }
-  })
+  });
 }
 
-export const configureProvider = (newProvider: ProviderOption) => {
+export async function configureProvider(newProvider: ProviderOption) {
   const newConfig: McpConfig = {
     ...config!,
-    agentProvider: newProvider
-  }
+    agentProvider: newProvider,
+  };
   return updateConfig(newConfig);
 }
 
-export const configureModel = (provider: ProviderOption, modelId: string) => {
+export async function configureModel(provider: ProviderOption, modelId: string) {
   const newProviders: Providers = {
     ...config!.providers,
     [provider]: {
       ...config!.providers[provider],
       modelId
     } as AgentConfig
-  }
+  };
   return updateConfig({
     ...config!,
-    providers: newProviders
+    providers: newProviders,
   });
 }

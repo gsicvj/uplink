@@ -3,7 +3,6 @@ import { envSchema } from "./env";
 
 describe("envSchema", () => {
   const validEnv = {
-    GROQ_API_KEY: "sk-xxx",
     BUNNY_STORAGE_ZONE_NAME: "my-zone",
     BUNNY_STORAGE_ACCESS_KEY: "access-key",
     BUNNY_PULLZONE_URL: "https://cdn.example.com",
