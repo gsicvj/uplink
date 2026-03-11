@@ -8,9 +8,9 @@ Runs entirely in the terminal: browse, organise, edit and create files, or uploa
 
 By default the agentic loop stays open: the AI keeps accepting new prompts until you type `/bye`, chaining tool calls between questions. Passing `--local` / `--remote` directory arguments only changes which folders the agent can touch—it still runs in interactive chat mode. For single-run mode, start the host with a one-off `--prompt` argument (for example `bun run host.ts --prompt "summarise README.md"`); the host will run the tools it needs, respond once, and exit.
 
-[CI](https://github.com/gsicvj/uplink/actions/workflows/ci.yml)
-[codecov](https://codecov.io/gh/gsicvj/uplink)
-[license](LICENSE)
+[![CI](https://github.com/gsicvj/uplink/actions/workflows/ci.yml/badge.svg)](https://github.com/gsicvj/uplink/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/gsicvj/uplink/graph/badge.svg)](https://codecov.io/gh/gsicvj/uplink)
+[![license](https://img.shields.io/badge/license-[MIT]-blue.svg)](LICENSE)
 
 ## Key Features
 
