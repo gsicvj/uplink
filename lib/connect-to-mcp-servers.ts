@@ -6,7 +6,7 @@ import {
   type experimental_MCPClient as MCPClient,
 } from "ai";
 import type { AllowedDirs } from "./get-dirs-from-args";
-import type { McpConfig } from "../config-validation";
+import { getConfig } from "./get-mcp-config";
 
 export const FILESYSTEM_MCP = "filesystem";
 export const UPLINK_MCP = "uplink";
@@ -37,7 +37,8 @@ export function getClientArgs(serverName: string, serverArgs: string[], allowedD
   return clientArgs;
 }
 
-export async function connectToMCPServers(config: McpConfig, allowedDirs: AllowedDirs) {
+export async function connectToMCPServers(allowedDirs: AllowedDirs) {
+  const config = await getConfig();
   const tools = [];
   const clients: Map<string, Client> = new Map();
   const toolMap: Map<string, Client> = new Map();
@@ -70,12 +71,17 @@ export async function connectToMCPServers(config: McpConfig, allowedDirs: Allowe
 
   return {
     tools,
-    clients,
     toolMap,
+    disconnect: async () => {
+      for (const client of Object.values(clients)) {
+        await client.disconnectFromServer();
+      }
+    }
   };
 }
 
-export async function connectAISDKToMCPServers(config: McpConfig, allowedDirs: AllowedDirs) {
+export async function connectAISDKToMCPServers(allowedDirs: AllowedDirs) {
+  const config = await getConfig();
   const clients: Map<string, MCPClient> = new Map();
   let tools: ToolType = {};
 
@@ -100,5 +106,16 @@ export async function connectAISDKToMCPServers(config: McpConfig, allowedDirs: A
     }
   }
 
-  return { tools, clients };
+  return {
+    tools,
+    toolMap: null,
+    disconnect: async () => {
+      if (clients === null) {
+        return;
+      }
+      await Promise.all(
+        Object.values(clients).map((client) => client.close())
+      );
+    }
+  };
 }

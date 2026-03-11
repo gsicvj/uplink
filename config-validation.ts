@@ -22,21 +22,30 @@ export const agentSchema = z.object({
   models: z.array(z.string().min(1, "Missing a proper model name.")).describe("The list of available model identifiers that the agent can use.").min(1)
 });
 
-export const providerOptionSchema = z.enum(["localAgent", "remoteAgent"]);
+export const providersSchema = z.record(agentSchema);
 
 export const configSchema = z.object({
   mcpServers: z.record(mcpServerSchema),
-  localAgent: agentSchema,
-  remoteAgent: agentSchema,
-  agentProvider: providerOptionSchema,
+  providers: providersSchema,
+  agentProvider: z.string(),
   isChatEnabled: z.boolean()
+}).superRefine((cfg, ctx) => {
+  if (!(Object.hasOwn(cfg.providers, cfg.agentProvider))) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["agentProvider"],
+      message: "agentProvider must be a key of providers"
+    })
+  }
 });
 
 export type McpServerConfig = z.infer<typeof mcpServerSchema>;
 
 export type AgentConfig = z.infer<typeof agentSchema>;
 
-export type ProviderOption = z.infer<typeof providerOptionSchema>;
+export type Providers = z.infer<typeof providersSchema>;
+
+export type ProviderOption = keyof z.infer<typeof providersSchema>;
 
 export type McpConfig = z.infer<typeof configSchema>;
 

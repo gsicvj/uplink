@@ -89,14 +89,17 @@ Set `agentProvider` to `remoteAgent` or `localAgent` depending on which provider
 - [x] Move allowed dirs from mcp-config to host app args
 - [ ] Enable tool toogle or multiple select for allowed/banned
 - [ ] Provide script argument for local/remote model
-- [-] Implement in-app model selection
-- [-] Implement in-app provider selection
-- [-] Implement in-app allowed directories selection
+- [x] Implement in-app model selection
+- [x] Implement in-app provider selection
+- [x] Implement in-app allowed directories selection
+- [ ] Use MCP to handle roots change instead of restarting agent on dirs change
 - [x] Add unit high and medium value tests
-- [-] Simplify config and Zod schemas
+- [x] Simplify config and Zod schemas
 - [ ] Enter chat mode when no args are provided, remove isChatEnabled flag
 - [ ] Implement terminal history
-- [ ] Re-iterate on user flow and plan it with stories, then implement changes
+- [ ] Create a user flow, ask what would a user want, and refactor where valuable
+- [ ] Treat local agent as Ollama Custom Provider
+- [ ] Simplify agents by merging Local and Remote Agent
 - [ ] Train and use a smaller domain specific model
 
 ## License

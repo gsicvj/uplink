@@ -9,6 +9,7 @@ import type { IBunnyNetAPIInterface } from "../servers/cdn/bunnynet";
 import { getConfig } from "../lib/get-mcp-config";
 import type { file as BunnyFileNamespace } from "@bunny.net/storage-sdk";
 import type { McpConfig } from "../config-validation";
+import type { UplinkAgent } from "../lib/host-agent";
 
 const PROMPT = "Generate 2 facts about oranges and upload as oranges.txt.";
 const DEFAULT_ITERATIONS = 5;
@@ -33,7 +34,6 @@ You are able to chain tools. For example, create file locally, upload to cloud.
 `;
 
 type StorageFile = BunnyFileNamespace.StorageFile;
-type UplinkAgent = LocalAgent | RemoteAgent;
 type AgentProvider = "localAgent" | "remoteAgent";
 
 interface BenchmarkOptions {
