@@ -25,7 +25,7 @@ async function main() {
 async function chatLoop(
   config: McpConfig,
   allowedDirs: AllowedDirs,
-  oneshotPrompt?: string
+  oneshotPrompt: string | null
 ) {
   dataMCP = await connectAgentServer(config.providers, config.agentProvider, allowedDirs);
   const { remoteClients, localClients, disconnectFromMCPServers } = dataMCP;
@@ -34,7 +34,7 @@ async function chatLoop(
 
   while (true) {
     try {
-      let line: string | symbol | undefined = oneshotPrompt;
+      let line: string | symbol | null = oneshotPrompt;
 
       if (!line) {
         line = await text({
