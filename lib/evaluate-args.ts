@@ -2,6 +2,7 @@ import { ensureDirs } from "./ensure-dirs";
 
 const LOCAL_ARG = "--local"
 const REMOTE_ARG = "--remote"
+const PROMPT_ARG = "--prompt"
 
 export type AllowedDirs = {
   localDirs: string[],
@@ -31,4 +32,11 @@ export async function getDirsFromArgs(args: string[]): Promise<AllowedDirs> {
   const ensuredRemoteDirs = await ensureDirs(remoteDirs);
 
   return { localDirs: ensuredLocalDirs, remoteDirs: ensuredRemoteDirs };
+}
+
+export async function getPromptFromArgs(args: string[]): Promise<string | null> {
+  const promptArgIndex = args.indexOf(PROMPT_ARG);
+  if (promptArgIndex === -1) return null;
+  const text = args[promptArgIndex + 1];
+  return typeof text === "string" ? text : null;
 }
