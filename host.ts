@@ -1,6 +1,6 @@
 import { getConfig } from "./lib/get-mcp-config";
 import { isCancel, log, outro, text } from "@clack/prompts";
-import { getDirsFromArgs, type AllowedDirs } from "./lib/get-dirs-from-args";
+import { getDirsFromArgs, getPromptFromArgs, type AllowedDirs } from "./lib/evaluate-args";
 import { z } from "zod";
 import { FILESYSTEM_MCP, UPLINK_MCP } from "./lib/connect-to-mcp-servers";
 import { connectAgentServer, initAgent, type UplinkAgent } from "./lib/host-agent";
@@ -13,17 +13,19 @@ let dataMCP: Awaited<ReturnType<typeof connectAgentServer>>;
 async function main() {
   const config = await getConfig();
   const { localDirs, remoteDirs } = await getDirsFromArgs(Bun.argv);
+  const oneshotPrompt = await getPromptFromArgs(Bun.argv);
   const allowedDirs = {
     localDirs: localDirs.length > 0 ? localDirs : config.mcpServers[FILESYSTEM_MCP]!.vargs,
     remoteDirs: remoteDirs.length > 0 ? remoteDirs : config.mcpServers[UPLINK_MCP]!.vargs
   }
-  await chatLoop(config, allowedDirs);
+  await chatLoop(config, allowedDirs, oneshotPrompt);
   process.exit(0);
 }
 
 async function chatLoop(
   config: McpConfig,
-  allowedDirs: AllowedDirs
+  allowedDirs: AllowedDirs,
+  oneshotPrompt?: string
 ) {
   dataMCP = await connectAgentServer(config.providers, config.agentProvider, allowedDirs);
   const { remoteClients, localClients, disconnectFromMCPServers } = dataMCP;
@@ -32,9 +34,13 @@ async function chatLoop(
 
   while (true) {
     try {
-      const line = await text({
-        message: "User:",
-      });
+      let line: string | symbol | undefined = oneshotPrompt;
+
+      if (!line) {
+        line = await text({
+          message: "User:",
+        });
+      }
 
       if (isCancel(line) || line === "/bye") {
         // user wants to exit the chat
@@ -82,8 +88,8 @@ async function chatLoop(
           log.error(`Error: ${result.error}`);
         }
 
-        const config = await getConfig();
-        if (config.isChatEnabled === false) {
+        const hasOneshotPrompt = typeof oneshotPrompt === "string" && oneshotPrompt.length > 1;
+        if (hasOneshotPrompt) {
           break;
         }
       }
