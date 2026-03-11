@@ -3,10 +3,7 @@ import { dirname, isAbsolute, join } from "node:path";
 import { performance } from "node:perf_hooks";
 import type { ChatResponse, Message, Tool as OllamaTool } from "ollama";
 import type { ModelMessage, ToolSet } from "ai";
-import {
-  experimental_createMCPClient as createMCPClient,
-  type experimental_MCPClient as MCPClient,
-} from "ai";
+import { createMCPClient, type MCPClient } from "@ai-sdk/mcp";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
 import { Client } from "../client/client";
