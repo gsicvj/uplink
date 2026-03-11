@@ -1,10 +1,10 @@
-Uplink
+![Uplink](./static/uplink-logo.svg)
 
-# Uplink – local & remote friendly AI-powered agent
+# Uplink – Bun-based terminal AI agent for local & remote LLMs
 
-Uplink is a lightweight open-source tool that fuses local filesystem management with optional cloud sync. It combines on-device LLMs (via Ollama) and hosted LLMs (via Groq or other providers) using the @modelcontextprotocol guidelines for extensible tooling.
+Uplink is a lightweight open-source terminal agent that ties local filesystem access to optional cloud storage. It uses the Model Context Protocol (MCP) for tools and supports both on-device LLMs (Ollama) and hosted providers (e.g. Groq).
 
-Runs entirely in the terminal: browse, organise, edit and create files, or upload them to a cloud provider while steering the workflow with natural-language instructions.
+Runs entirely in the terminal: browse, organise, edit and create files, or upload them to a cloud provider, steering the workflow with natural-language instructions. The stack is modular—you can plug in other MCP servers alongside or instead of the built-in filesystem and CDN servers.
 
 By default the agentic loop stays open: the AI keeps accepting new prompts until you type `/bye`, chaining tool calls between questions. Passing `--local` / `--remote` directory arguments only changes which folders the agent can touch—it still runs in interactive chat mode. For single-run mode, start the host with a one-off `--prompt` argument (for example `bun run host.ts --prompt "summarise README.md"`); the host will run the tools it needs, respond once, and exit.
 
