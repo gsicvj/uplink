@@ -38,7 +38,7 @@
     "@bunny.net/storage-sdk": "^0.3.1",
     "@clack/prompts": "^1.8.1",
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "@modelcontextprotocol/server-filesystem": "^2026.8.31",
+    "@modelcontextprotocol/server-filesystem": "2026.1.14",
     "ai": "^7.0.99",
     "chalk": "^6.0.0",
     "dotenv": "^17.4.2",

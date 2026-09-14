@@ -45,8 +45,8 @@ Assistant: You’re welcome! The file is now safely stored in the cloud.
 {
   "mcpServers": {
     "filesystem": {
-      "command": "bunx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem"],
+      "command": "bun",
+      "args": ["run", "mcp-server-filesystem"],
       "vargs": ["relative-to-project-root/", "/or/absolute/path"]
     },
     "uplink": {

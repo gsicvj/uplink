@@ -8,7 +8,6 @@
 
    ```bash
    bun install
-   bun add @modelcontextprotocol/server-filesystem
    ```
 
 3. **Create directories** to enable file operations and logs: `mkdir -p assets downloads logging`
@@ -52,4 +51,5 @@
 - **Missing API key errors**: Check your `.env` file has the required keys
 - **Ollama connection failed**: Run `ollama serve` in a separate terminal
 - **Permission errors**: Run `chmod -R 755 assets downloads`
-- **MCP server errors**: Test with `bunx @modelcontextprotocol/server-filesystem assets`
+- **Filesystem paths resolve against the first allowed directory**: The filesystem MCP server is pinned to `2026.1.14` in `package.json`. Versions from `2026.7.4` on resolve relative paths against the first allowed directory instead of the project root, which breaks relative paths like `downloads/file.txt`. Keep `mcp-config.json` on `bun run mcp-server-filesystem` so the pinned version is used; `bunx` always fetches the latest release.
+- **MCP server errors**: Test with `bun run mcp-server-filesystem assets`
