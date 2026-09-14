@@ -152,7 +152,7 @@ export async function logRemoteResponse({
   init,
   solve,
 }: {
-  response?: GenerateTextResult<any, never>;
+  response?: GenerateTextResult<any, any, any>;
   init?: {
     modelId: string;
     totalDuration: number;

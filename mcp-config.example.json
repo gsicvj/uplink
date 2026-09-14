@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "filesystem": {
-      "command": "bunx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem"],
+      "command": "bun",
+      "args": ["run", "mcp-server-filesystem"],
       "vargs": []
     },
     "uplink": {
